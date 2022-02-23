@@ -1,82 +1,47 @@
 package gamespace.views;
 
+import gamespace.data.entity.User;
+import gamespace.security.AuthenticatedUser;
+import gamespace.views.ayuda.AyudaView;
+//import gamespace.views.cuestionarios.CuestionariosView;
+import gamespace.views.estadistica.EstadisticaView;
+//import gamespace.gestionar.GestionarView;
+//import gamespace.views.gvideojuego.gvideojuegoView;
+//import gamespace.views.inicio.InicioView;
+//import gamespace.views.noticia.NoticiaView;
+import gamespace.views.videojuegos.VideojuegosView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
-import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.ListItem;
-import com.vaadin.flow.component.html.Nav;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
-import gamespace.data.entity.User;
-import gamespace.security.AuthenticatedUser;
-import gamespace.views.administrarcuenta.AdministrarCuentaView;
-import gamespace.views.ayuda.AyudaView;
-import gamespace.views.estadistica.EstadisticaView;
+import java.util.Optional;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import gamespace.views.gcuestionarios.GCuestionariosView;
 import gamespace.views.gestionar.GestionarView;
 import gamespace.views.gnoticias.GNoticiasView;
-import gamespace.views.gusuarios.GUsuariosView;
-import gamespace.views.gvideojuegos.GVideojuegosView;
 import gamespace.views.noticias.NoticiasView;
-import gamespace.views.selectbuscar.SelectBuscarView;
-import gamespace.views.videojuegos.VideojuegosView;
-import java.util.Optional;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
+@PageTitle("Main")
 public class MainLayout extends AppLayout {
 
-    /**
-     * A simple navigation item component, based on ListItem element.
-     */
-    public static class MenuItemInfo extends ListItem {
+    private Map<String, Class<?>> viewByName;
 
-        private final Class<? extends Component> view;
-
-        public MenuItemInfo(String menuTitle, String iconClass, Class<? extends Component> view) {
-            this.view = view;
-            RouterLink link = new RouterLink();
-            // Use Lumo classnames for various styling
-            link.addClassNames("flex", "h-m", "items-center", "px-s", "relative", "text-secondary");
-            link.setRoute(view);
-
-            Span text = new Span(menuTitle);
-            // Use Lumo classnames for various styling
-            text.addClassNames("font-medium", "text-s", "whitespace-nowrap");
-
-            link.add(new LineAwesomeIcon(iconClass), text);
-            add(link);
-        }
-
-        public Class<?> getView() {
-            return view;
-        }
-
-        /**
-         * Simple wrapper to create icons using LineAwesome iconset. See
-         * https://icons8.com/line-awesome
-         */
-        @NpmPackage(value = "line-awesome", version = "1.3.0")
-        public static class LineAwesomeIcon extends Span {
-            public LineAwesomeIcon(String lineawesomeClassnames) {
-                // Use Lumo classnames for suitable font size and margin
-                addClassNames("me-s", "text-l");
-                if (!lineawesomeClassnames.isEmpty()) {
-                    addClassNames(lineawesomeClassnames);
-                }
-            }
-        }
-
-    }
+   
 
     private AuthenticatedUser authenticatedUser;
     private AccessAnnotationChecker accessChecker;
@@ -84,7 +49,7 @@ public class MainLayout extends AppLayout {
     public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker) {
         this.authenticatedUser = authenticatedUser;
         this.accessChecker = accessChecker;
-
+        initial();
         addToNavbar(createHeaderContent());
     }
 
@@ -120,51 +85,73 @@ public class MainLayout extends AppLayout {
             Anchor loginLink = new Anchor("login", "Sign in");
             layout.add(loginLink);
         }
+        header.add(layout, createMenu());
+        return header;
+    }
+/*
+    private MenuItemInfo[] createMenuItems() {
+        return new MenuItemInfo[]{ //
+            new MenuItemInfo("Inicio", "la la-home", InicioView.class), //
 
-        Nav nav = new Nav();
-        nav.addClassNames("flex", "gap-s", "overflow-auto", "px-m");
+            new MenuItemInfo("Ayuda", "la la-thumbs-up", AyudaView.class), //
 
-        // Wrap the links in a list; improves accessibility
-        UnorderedList list = new UnorderedList();
-        list.addClassNames("flex", "list-none", "m-0", "p-0");
-        nav.add(list);
+            new MenuItemInfo("Videojuegos", "lab la-the-red-yeti", VideojuegosView.class), //
 
-        for (MenuItemInfo menuItem : createMenuItems()) {
-            if (accessChecker.hasAccess(menuItem.getView())) {
-                list.add(menuItem);
-            }
+            new MenuItemInfo("Estadistica", "la la-chart-area", EstadisticaView.class), //
+
+            new MenuItemInfo("Gestionar", "la la-th-list", GestionarView.class), //
+        //new MenuItemInfo("Empty", "la la-file", EmptyView.class), //
+        };
+    }
+*/
+    private MenuBar createMenu() {
+        MenuBar menuBar = new MenuBar();
+
+        if (accessChecker.hasAccess(viewByName.get("Inicio"))) {
+            menuBar.addItem(createLink("Inicio", NoticiasView.class));
 
         }
 
-        header.add(layout, nav);
-        return header;
+        if (accessChecker.hasAccess(viewByName.get("Ayuda"))) {
+            menuBar.addItem(createLink("Ayuda", AyudaView.class));
+        }
+        if (accessChecker.hasAccess(viewByName.get("Videojuegos"))) {
+            menuBar.addItem(createLink("Videojuegos", VideojuegosView.class));
+        }
+
+        if (accessChecker.hasAccess(viewByName.get("Estadistica"))) {
+            menuBar.addItem(createLink("Estadistica", EstadisticaView.class));
+        }
+
+        if (accessChecker.hasAccess(viewByName.get("Gestionar"))) {
+            MenuItem manage = menuBar.addItem("Gestionar");
+            SubMenu manageSubMenu = manage.getSubMenu();
+            manageSubMenu.addItem(createLink("Noticias", GNoticiasView.class));
+            manageSubMenu.addItem(createLink("Videojuegos", GCuestionariosView.class));
+            manageSubMenu.addItem(createLink("Cuestionarios", GCuestionariosView.class));
+
+        }
+
+        return menuBar;
     }
 
-    private MenuItemInfo[] createMenuItems() {
-        return new MenuItemInfo[]{ //
-                new MenuItemInfo("Noticias", "la la-newspaper", NoticiasView.class), //
+    private void initial() {
+        viewByName = new TreeMap<>();
 
-                new MenuItemInfo("Administrar Cuenta", "la la-user", AdministrarCuentaView.class), //
-
-                new MenuItemInfo("Ayuda", "la la-question", AyudaView.class), //
-
-                new MenuItemInfo("Videojuegos", "la la-gamepad", VideojuegosView.class), //
-
-                new MenuItemInfo("GUsuarios", "la la-user-check", GUsuariosView.class), //
-
-                new MenuItemInfo("Gestionar", "la la-cogs", GestionarView.class), //
-
-                new MenuItemInfo("GNoticias", "la la-newspaper", GNoticiasView.class), //
-
-                new MenuItemInfo("GCuestionarios", "la la-list-ol", GCuestionariosView.class), //
-
-                new MenuItemInfo("GVideojuegos", "la la-gamepad", GVideojuegosView.class), //
-
-                new MenuItemInfo("Estadistica", "la la-chalkboard-teacher", EstadisticaView.class), //
-
-                new MenuItemInfo("Select Buscar", "la la-search", SelectBuscarView.class), //
-
-        };
+        viewByName.put("Inicio", NoticiasView.class);
+        viewByName.put("Ayuda", AyudaView.class);
+        viewByName.put("Videojuegos", VideojuegosView.class);
+        viewByName.put("Estadistica", EstadisticaView.class);
+        viewByName.put("Gestionar", GestionarView.class);
     }
 
+    private RouterLink createLink(String title, Class<? extends Component> view) {
+        RouterLink link = new RouterLink();
+        link.setRoute(view);
+        Span text = new Span(title);
+        text.getStyle().set("color", "white");
+        text.getStyle().set("text-decoration", "none");
+        link.add(text);
+        return link;
+    }
 }
