@@ -42,9 +42,9 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
     private Grid<Usuario> grid = new Grid<>(Usuario.class, false);
 
     CollaborationAvatarGroup avatarGroup;
-
+    private Usuario usuario;
     private TextField firstName;
-    private TextField usuario;
+    private TextField nombreUsuario;
     private TextField contrasenna;
     private TextField rol;
 
@@ -53,7 +53,7 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
 
     private CollaborationBinder<Usuario> binder;
 
-    private Usuario usuario;
+    
 
     private UsuarioService usuarioService;
 
@@ -161,10 +161,10 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
 
         FormLayout formLayout = new FormLayout();
         firstName = new TextField("First Name");
-        usuario = new TextField("Usuario");
+        nombreUsuario = new TextField("Usuario");
         contrasenna = new TextField("Contrasenna");
         rol = new TextField("Rol");
-        Component[] fields = new Component[]{firstName, usuario, contrasenna, rol};
+        Component[] fields = new Component[]{firstName, nombreUsuario, contrasenna, rol};
 
         for (Component field : fields) {
             ((HasStyle) field).addClassName("full-width");
