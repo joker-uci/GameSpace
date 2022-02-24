@@ -62,7 +62,7 @@ public class DataGenerator {
             ExampleDataGenerator<Usuario> usuarioRepositoryGenerator = new ExampleDataGenerator<>(Usuario.class,
                     LocalDateTime.of(2022, 2, 15, 0, 0, 0));
             usuarioRepositoryGenerator.setData(Usuario::setFirstName, DataType.FIRST_NAME);
-            usuarioRepositoryGenerator.setData(Usuario::setUsuario, DataType.WORD);
+            usuarioRepositoryGenerator.setData(Usuario::setUserName, DataType.WORD);
             usuarioRepositoryGenerator.setData(Usuario::setContrasenna, DataType.TWO_WORDS);
             usuarioRepositoryGenerator.setData(Usuario::setRol, DataType.WORD);
             usuarioRepository.saveAll(usuarioRepositoryGenerator.create(100, seed));
@@ -101,7 +101,7 @@ public class DataGenerator {
             ExampleDataGenerator<Videojuego> videojuegoRepositoryGenerator = new ExampleDataGenerator<>(
                     Videojuego.class, LocalDateTime.of(2022, 2, 15, 0, 0, 0));
             videojuegoRepositoryGenerator.setData(Videojuego::setTitulo, DataType.FIRST_NAME);
-            videojuegoRepositoryGenerator.setData(Videojuego::setCuestionario, DataType.UUID);
+            videojuegoRepositoryGenerator.setData(Videojuego::setCuestionario, DataType.SENTENCE);
             videojuegoRepositoryGenerator.setData(Videojuego::setDescrpcion, DataType.SENTENCE);
             videojuegoRepositoryGenerator.setData(Videojuego::setFechaLanzamiento, DataType.DATE_OF_BIRTH);
             videojuegoRepositoryGenerator.setData(Videojuego::setCover, DataType.BOOK_IMAGE_URL);

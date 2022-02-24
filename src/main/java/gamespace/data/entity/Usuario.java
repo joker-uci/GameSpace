@@ -7,23 +7,23 @@ import javax.persistence.Entity;
 @Entity
 public class Usuario extends AbstractEntity {
 
+    private String userName;
     private String firstName;
-    private String usuario;
     @JsonIgnore
     private String contrasenna;
     private String rol;
 
+    public String getUserName() {
+        return userName;
+    }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
     public String getFirstName() {
         return firstName;
     }
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-    }
-    public String getUsuario() {
-        return usuario;
-    }
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
     }
     public String getContrasenna() {
         return contrasenna;

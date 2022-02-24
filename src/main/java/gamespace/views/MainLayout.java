@@ -26,9 +26,12 @@ import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import java.util.Optional;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
+import gamespace.views.administrarcuenta.AdministrarCuentaView;
 import gamespace.views.gcuestionarios.GCuestionariosView;
 import gamespace.views.gestionar.GestionarView;
 import gamespace.views.gnoticias.GNoticiasView;
+import gamespace.views.gusuarios.GUsuariosView;
+import gamespace.views.gvideojuegos.GVideojuegosView;
 import gamespace.views.noticias.NoticiasView;
 import java.util.Map;
 import java.util.TreeMap;
@@ -109,30 +112,36 @@ public class MainLayout extends AppLayout {
 
         if (accessChecker.hasAccess(viewByName.get("Inicio"))) {
             menuBar.addItem(createLink("Inicio", NoticiasView.class));
-
         }
-
         if (accessChecker.hasAccess(viewByName.get("Ayuda"))) {
             menuBar.addItem(createLink("Ayuda", AyudaView.class));
         }
         if (accessChecker.hasAccess(viewByName.get("Videojuegos"))) {
             menuBar.addItem(createLink("Videojuegos", VideojuegosView.class));
         }
-
         if (accessChecker.hasAccess(viewByName.get("Estadistica"))) {
             menuBar.addItem(createLink("Estadistica", EstadisticaView.class));
         }
-
+        if (accessChecker.hasAccess(viewByName.get("Administrar Cuenta"))) {
+            menuBar.addItem(createLink("Administrar Cuenta", AdministrarCuentaView.class));
+        }
         if (accessChecker.hasAccess(viewByName.get("Gestionar"))) {
             MenuItem manage = menuBar.addItem("Gestionar");
             SubMenu manageSubMenu = manage.getSubMenu();
+            if (accessChecker.hasAccess(viewByName.get("Gestionar Noticias"))) {
             manageSubMenu.addItem(createLink("Noticias", GNoticiasView.class));
-            manageSubMenu.addItem(createLink("Videojuegos", GCuestionariosView.class));
+            }
+            if (accessChecker.hasAccess(viewByName.get("Gestionar Videojuegos"))) {
+            manageSubMenu.addItem(createLink("Videojuegos", GVideojuegosView.class));
+            }
+            if (accessChecker.hasAccess(viewByName.get("Gestionar Cuestionarios"))) {
             manageSubMenu.addItem(createLink("Cuestionarios", GCuestionariosView.class));
-
+            }
+            if (accessChecker.hasAccess(viewByName.get("Gestionar Usuarios"))) {
+            manageSubMenu.addItem(createLink("Usuarios", GUsuariosView.class));
+            }
         }
-
-        return menuBar;
+    return menuBar;
     }
 
     private void initial() {
@@ -142,7 +151,12 @@ public class MainLayout extends AppLayout {
         viewByName.put("Ayuda", AyudaView.class);
         viewByName.put("Videojuegos", VideojuegosView.class);
         viewByName.put("Estadistica", EstadisticaView.class);
+        viewByName.put("Administrar Cuenta", AdministrarCuentaView.class);
         viewByName.put("Gestionar", GestionarView.class);
+        viewByName.put("Gestionar Cuestionarios", GCuestionariosView.class);
+        viewByName.put("Gestionar Noticias", GNoticiasView.class);
+        viewByName.put("Gestionar Videojuegos", GVideojuegosView.class);
+        viewByName.put("Gestionar Usuarios", GUsuariosView.class);
     }
 
     private RouterLink createLink(String title, Class<? extends Component> view) {

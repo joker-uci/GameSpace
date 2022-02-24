@@ -1,8 +1,5 @@
 package gamespace.views.gvideojuegos;
 
-import com.vaadin.collaborationengine.CollaborationAvatarGroup;
-import com.vaadin.collaborationengine.CollaborationBinder;
-import com.vaadin.collaborationengine.UserInfo;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
@@ -20,8 +17,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.flow.data.converter.StringToUuidConverter;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -52,8 +49,6 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
 
     private Grid<Videojuego> grid = new Grid<>(Videojuego.class, false);
 
-    CollaborationAvatarGroup avatarGroup;
-
     private TextField titulo;
     private TextField cuestionario;
     private TextField descrpcion;
@@ -66,7 +61,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
     private Button cancel = new Button("Cancel");
     private Button save = new Button("Save");
 
-    private CollaborationBinder<Videojuego> binder;
+    private BeanValidationBinder<Videojuego> binder;
 
     private Videojuego videojuego;
 
@@ -76,20 +71,9 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
         this.videojuegoService = videojuegoService;
         addClassNames("g-videojuegos-view", "flex", "flex-col", "h-full");
 
-        // UserInfo is used by Collaboration Engine and is used to share details
-        // of users to each other to able collaboration. Replace this with
-        // information about the actual user that is logged, providing a user
-        // identifier, and the user's real name. You can also provide the users
-        // avatar by passing an url to the image as a third parameter, or by
-        // configuring an `ImageProvider` to `avatarGroup`.
-        UserInfo userInfo = new UserInfo(UUID.randomUUID().toString(), "Steve Lange");
-
         // Create UI
         SplitLayout splitLayout = new SplitLayout();
         splitLayout.setSizeFull();
-
-        avatarGroup = new CollaborationAvatarGroup(userInfo, null);
-        avatarGroup.getStyle().set("visibility", "hidden");
 
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
@@ -128,11 +112,9 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
         });
 
         // Configure Form
-        binder = new CollaborationBinder<>(Videojuego.class, userInfo);
+        binder = new BeanValidationBinder<>(Videojuego.class);
 
         // Bind fields. This is where you'd define e.g. validation rules
-        binder.forField(cuestionario, String.class).withConverter(new StringToUuidConverter("Invalid UUID"))
-                .bind("cuestionario");
 
         binder.bindInstanceFields(this);
 
@@ -162,6 +144,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
                 Notification.show("An exception happened while trying to store the videojuego details.");
             }
         });
+
     }
 
     @Override
@@ -172,7 +155,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
             if (videojuegoFromBackend.isPresent()) {
                 populateForm(videojuegoFromBackend.get());
             } else {
-                Notification.show(String.format("The requested videojuego was not found, ID = %d", videojuegoId.get()),
+                Notification.show(String.format("The requested videojuego was not found, ID = %s", videojuegoId.get()),
                         3000, Notification.Position.BOTTOM_START);
                 // when a row is selected but the data is no longer available,
                 // refresh grid
@@ -215,7 +198,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
             ((HasStyle) field).addClassName("full-width");
         }
         formLayout.add(fields);
-        editorDiv.add(avatarGroup, formLayout);
+        editorDiv.add(formLayout);
         createButtonLayout(editorLayoutDiv);
 
         splitLayout.addToSecondary(editorLayoutDiv);
@@ -268,15 +251,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
 
     private void populateForm(Videojuego value) {
         this.videojuego = value;
-        String topic = null;
-        if (this.videojuego != null && this.videojuego.getId() != null) {
-            topic = "videojuego/" + this.videojuego.getId();
-            avatarGroup.getStyle().set("visibility", "visible");
-        } else {
-            avatarGroup.getStyle().set("visibility", "hidden");
-        }
-        binder.setTopic(topic, () -> this.videojuego);
-        avatarGroup.setTopic(topic);
+        binder.readBean(this.videojuego);
         this.coverPreview.setVisible(value != null);
         if (value == null) {
             this.coverPreview.setSrc("");

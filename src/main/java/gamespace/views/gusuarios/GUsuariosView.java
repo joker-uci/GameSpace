@@ -1,8 +1,5 @@
 package gamespace.views.gusuarios;
 
-import com.vaadin.collaborationengine.CollaborationAvatarGroup;
-import com.vaadin.collaborationengine.CollaborationBinder;
-import com.vaadin.collaborationengine.UserInfo;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
@@ -16,11 +13,13 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import gamespace.data.entity.Usuario;
 import gamespace.data.service.UsuarioService;
@@ -33,6 +32,7 @@ import org.springframework.data.domain.PageRequest;
 
 @PageTitle("GUsuarios")
 @Route(value = "GUsuarios/:usuarioID?/:action?(edit)", layout = MainLayout.class)
+@RouteAlias(value = "GUsuarios", layout = MainLayout.class)
 @RolesAllowed("admin")
 public class GUsuariosView extends Div implements BeforeEnterObserver {
 
@@ -41,19 +41,17 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
 
     private Grid<Usuario> grid = new Grid<>(Usuario.class, false);
 
-    CollaborationAvatarGroup avatarGroup;
-    private Usuario usuario;
+    private TextField userName;
     private TextField firstName;
-    private TextField nombreUsuario;
     private TextField contrasenna;
     private TextField rol;
 
     private Button cancel = new Button("Cancel");
     private Button save = new Button("Save");
 
-    private CollaborationBinder<Usuario> binder;
+    private BeanValidationBinder<Usuario> binder;
 
-    
+    private Usuario usuario;
 
     private UsuarioService usuarioService;
 
@@ -61,20 +59,9 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
         this.usuarioService = usuarioService;
         addClassNames("g-usuarios-view", "flex", "flex-col", "h-full");
 
-        // UserInfo is used by Collaboration Engine and is used to share details
-        // of users to each other to able collaboration. Replace this with
-        // information about the actual user that is logged, providing a user
-        // identifier, and the user's real name. You can also provide the users
-        // avatar by passing an url to the image as a third parameter, or by
-        // configuring an `ImageProvider` to `avatarGroup`.
-        UserInfo userInfo = new UserInfo(UUID.randomUUID().toString(), "Steve Lange");
-
         // Create UI
         SplitLayout splitLayout = new SplitLayout();
         splitLayout.setSizeFull();
-
-        avatarGroup = new CollaborationAvatarGroup(userInfo, null);
-        avatarGroup.getStyle().set("visibility", "hidden");
 
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
@@ -82,8 +69,8 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
         add(splitLayout);
 
         // Configure Grid
+        grid.addColumn("userName").setAutoWidth(true);
         grid.addColumn("firstName").setAutoWidth(true);
-        grid.addColumn("usuario").setAutoWidth(true);
         grid.addColumn("contrasenna").setAutoWidth(true);
         grid.addColumn("rol").setAutoWidth(true);
         grid.setItems(query -> usuarioService.list(
@@ -103,7 +90,7 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
         });
 
         // Configure Form
-        binder = new CollaborationBinder<>(Usuario.class, userInfo);
+        binder = new BeanValidationBinder<>(Usuario.class);
 
         // Bind fields. This is where you'd define e.g. validation rules
 
@@ -130,6 +117,7 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
                 Notification.show("An exception happened while trying to store the usuario details.");
             }
         });
+
     }
 
     @Override
@@ -140,7 +128,7 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
             if (usuarioFromBackend.isPresent()) {
                 populateForm(usuarioFromBackend.get());
             } else {
-                Notification.show(String.format("The requested usuario was not found, ID = %d", usuarioId.get()), 3000,
+                Notification.show(String.format("The requested usuario was not found, ID = %s", usuarioId.get()), 3000,
                         Notification.Position.BOTTOM_START);
                 // when a row is selected but the data is no longer available,
                 // refresh grid
@@ -160,17 +148,17 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
         editorLayoutDiv.add(editorDiv);
 
         FormLayout formLayout = new FormLayout();
+        userName = new TextField("User Name");
         firstName = new TextField("First Name");
-        nombreUsuario = new TextField("Usuario");
         contrasenna = new TextField("Contrasenna");
         rol = new TextField("Rol");
-        Component[] fields = new Component[]{firstName, nombreUsuario, contrasenna, rol};
+        Component[] fields = new Component[]{userName, firstName, contrasenna, rol};
 
         for (Component field : fields) {
             ((HasStyle) field).addClassName("full-width");
         }
         formLayout.add(fields);
-        editorDiv.add(avatarGroup, formLayout);
+        editorDiv.add(formLayout);
         createButtonLayout(editorLayoutDiv);
 
         splitLayout.addToSecondary(editorLayoutDiv);
@@ -205,15 +193,7 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
 
     private void populateForm(Usuario value) {
         this.usuario = value;
-        String topic = null;
-        if (this.usuario != null && this.usuario.getId() != null) {
-            topic = "usuario/" + this.usuario.getId();
-            avatarGroup.getStyle().set("visibility", "visible");
-        } else {
-            avatarGroup.getStyle().set("visibility", "hidden");
-        }
-        binder.setTopic(topic, () -> this.usuario);
-        avatarGroup.setTopic(topic);
+        binder.readBean(this.usuario);
 
     }
 }

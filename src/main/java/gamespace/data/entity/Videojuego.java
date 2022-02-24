@@ -2,7 +2,6 @@ package gamespace.data.entity;
 
 import gamespace.data.AbstractEntity;
 import java.time.LocalDate;
-import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 
@@ -10,7 +9,7 @@ import javax.persistence.Lob;
 public class Videojuego extends AbstractEntity {
 
     private String titulo;
-    private UUID cuestionario;
+    private String cuestionario;
     private String descrpcion;
     private LocalDate fechaLanzamiento;
     @Lob
@@ -24,10 +23,10 @@ public class Videojuego extends AbstractEntity {
     public void setTitulo(String titulo) {
         this.titulo = titulo;
     }
-    public UUID getCuestionario() {
+    public String getCuestionario() {
         return cuestionario;
     }
-    public void setCuestionario(UUID cuestionario) {
+    public void setCuestionario(String cuestionario) {
         this.cuestionario = cuestionario;
     }
     public String getDescrpcion() {

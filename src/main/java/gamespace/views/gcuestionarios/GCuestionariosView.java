@@ -1,8 +1,5 @@
 package gamespace.views.gcuestionarios;
 
-import com.vaadin.collaborationengine.CollaborationAvatarGroup;
-import com.vaadin.collaborationengine.CollaborationBinder;
-import com.vaadin.collaborationengine.UserInfo;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
@@ -17,9 +14,9 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
-import com.vaadin.flow.data.converter.StringToUuidConverter;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -35,18 +32,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 
 @PageTitle("GCuestionarios")
-@Route(value = "GCuestionarios/:cuestionariosID?/:action?(edit)", layout = MainLayout.class)
+@Route(value = "GCuestionarios/:cuestionarioID?/:action?(edit)", layout = MainLayout.class)
 @RolesAllowed("admin")
 public class GCuestionariosView extends Div implements BeforeEnterObserver {
 
-    private final String CUESTIONARIOS_ID = "cuestionariosID";
-    private final String CUESTIONARIOS_EDIT_ROUTE_TEMPLATE = "GCuestionarios/%s/edit";
+    private final String CUESTIONARIO_ID = "cuestionarioID";
+    private final String CUESTIONARIO_EDIT_ROUTE_TEMPLATE = "GCuestionarios/%s/edit";
 
     private Grid<Cuestionarios> grid = new Grid<>(Cuestionarios.class, false);
-
-    CollaborationAvatarGroup avatarGroup;
-
-    private TextField cuestionario;
+    
+    private TextField nombCuestionario;
     private TextField juego;
     private TextField descripcion;
     private DatePicker fecha;
@@ -65,30 +60,19 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
     private Button cancel = new Button("Cancel");
     private Button save = new Button("Save");
 
-    private CollaborationBinder<Cuestionarios> binder;
+    private BeanValidationBinder<Cuestionarios> binder;
 
-    private Cuestionarios cuestionarios;
+    private Cuestionarios cuestionario;
 
-    private CuestionariosService cuestionariosService;
+    private CuestionariosService cuestionarioService;
 
-    public GCuestionariosView(@Autowired CuestionariosService cuestionariosService) {
-        this.cuestionariosService = cuestionariosService;
+    public GCuestionariosView(@Autowired CuestionariosService cuestionarioService) {
+        this.cuestionarioService = cuestionarioService;
         addClassNames("g-cuestionarios-view", "flex", "flex-col", "h-full");
-
-        // UserInfo is used by Collaboration Engine and is used to share details
-        // of users to each other to able collaboration. Replace this with
-        // information about the actual user that is logged, providing a user
-        // identifier, and the user's real name. You can also provide the users
-        // avatar by passing an url to the image as a third parameter, or by
-        // configuring an `ImageProvider` to `avatarGroup`.
-        UserInfo userInfo = new UserInfo(UUID.randomUUID().toString(), "Steve Lange");
 
         // Create UI
         SplitLayout splitLayout = new SplitLayout();
         splitLayout.setSizeFull();
-
-        avatarGroup = new CollaborationAvatarGroup(userInfo, null);
-        avatarGroup.getStyle().set("visibility", "hidden");
 
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
@@ -111,7 +95,7 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         grid.addColumn("promedio4").setAutoWidth(true);
         grid.addColumn("criterio5").setAutoWidth(true);
         grid.addColumn("promedio5").setAutoWidth(true);
-        grid.setItems(query -> cuestionariosService.list(
+        grid.setItems(query -> cuestionarioService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
                 .stream());
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -120,7 +104,7 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         // when a row is selected or deselected, populate form
         grid.asSingleSelect().addValueChangeListener(event -> {
             if (event.getValue() != null) {
-                UI.getCurrent().navigate(String.format(CUESTIONARIOS_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
+                UI.getCurrent().navigate(String.format(CUESTIONARIO_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
             } else {
                 clearForm();
                 UI.getCurrent().navigate(GCuestionariosView.class);
@@ -128,20 +112,18 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         });
 
         // Configure Form
-        binder = new CollaborationBinder<>(Cuestionarios.class, userInfo);
+        binder = new BeanValidationBinder<>(Cuestionarios.class);
 
         // Bind fields. This is where you'd define e.g. validation rules
-        binder.forField(cuestionario, String.class).withConverter(new StringToUuidConverter("Invalid UUID"))
-                .bind("cuestionario");
-        binder.forField(promedio1, String.class).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(promedio1).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
                 .bind("promedio1");
-        binder.forField(promedio2, String.class).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(promedio2).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
                 .bind("promedio2");
-        binder.forField(proedio3, String.class).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(proedio3).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
                 .bind("proedio3");
-        binder.forField(promedio4, String.class).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(promedio4).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
                 .bind("promedio4");
-        binder.forField(promedio5, String.class).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(promedio5).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
                 .bind("promedio5");
 
         binder.bindInstanceFields(this);
@@ -153,33 +135,34 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
 
         save.addClickListener(e -> {
             try {
-                if (this.cuestionarios == null) {
-                    this.cuestionarios = new Cuestionarios();
+                if (this.cuestionario == null) {
+                    this.cuestionario = new Cuestionarios();
                 }
-                binder.writeBean(this.cuestionarios);
+                binder.writeBean(this.cuestionario);
 
-                cuestionariosService.update(this.cuestionarios);
+                cuestionarioService.update(this.cuestionario);
                 clearForm();
                 refreshGrid();
-                Notification.show("Cuestionarios details stored.");
+                Notification.show("Cuestionario details stored.");
                 UI.getCurrent().navigate(GCuestionariosView.class);
             } catch (ValidationException validationException) {
-                Notification.show("An exception happened while trying to store the cuestionarios details.");
+                Notification.show("An exception happened while trying to store the cuestionario details.");
             }
         });
+
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Optional<UUID> cuestionariosId = event.getRouteParameters().get(CUESTIONARIOS_ID).map(UUID::fromString);
-        if (cuestionariosId.isPresent()) {
-            Optional<Cuestionarios> cuestionariosFromBackend = cuestionariosService.get(cuestionariosId.get());
-            if (cuestionariosFromBackend.isPresent()) {
-                populateForm(cuestionariosFromBackend.get());
+        Optional<UUID> cuestionarioId = event.getRouteParameters().get(CUESTIONARIO_ID).map(UUID::fromString);
+        if (cuestionarioId.isPresent()) {
+            Optional<Cuestionarios> cuestionarioFromBackend = cuestionarioService.get(cuestionarioId.get());
+            if (cuestionarioFromBackend.isPresent()) {
+                populateForm(cuestionarioFromBackend.get());
             } else {
                 Notification.show(
-                        String.format("The requested cuestionarios was not found, ID = %d", cuestionariosId.get()),
-                        3000, Notification.Position.BOTTOM_START);
+                        String.format("The requested cuestionario was not found, ID = %s", cuestionarioId.get()), 3000,
+                        Notification.Position.BOTTOM_START);
                 // when a row is selected but the data is no longer available,
                 // refresh grid
                 refreshGrid();
@@ -198,7 +181,7 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         editorLayoutDiv.add(editorDiv);
 
         FormLayout formLayout = new FormLayout();
-        cuestionario = new TextField("Cuestionario");
+        nombCuestionario = new TextField("Cuestionario");
         juego = new TextField("Juego");
         descripcion = new TextField("Descripcion");
         fecha = new DatePicker("Fecha");
@@ -213,14 +196,14 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         promedio4 = new TextField("Promedio4");
         criterio5 = new TextField("Criterio5");
         promedio5 = new TextField("Promedio5");
-        Component[] fields = new Component[]{cuestionario, juego, descripcion, fecha, usuario, criterio1, promedio1,
+        Component[] fields = new Component[]{nombCuestionario, juego, descripcion, fecha, usuario, criterio1, promedio1,
                 criterio2, promedio2, criterio3, proedio3, criterio4, promedio4, criterio5, promedio5};
 
         for (Component field : fields) {
             ((HasStyle) field).addClassName("full-width");
         }
         formLayout.add(fields);
-        editorDiv.add(avatarGroup, formLayout);
+        editorDiv.add(formLayout);
         createButtonLayout(editorLayoutDiv);
 
         splitLayout.addToSecondary(editorLayoutDiv);
@@ -254,16 +237,8 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
     }
 
     private void populateForm(Cuestionarios value) {
-        this.cuestionarios = value;
-        String topic = null;
-        if (this.cuestionarios != null && this.cuestionarios.getId() != null) {
-            topic = "cuestionarios/" + this.cuestionarios.getId();
-            avatarGroup.getStyle().set("visibility", "visible");
-        } else {
-            avatarGroup.getStyle().set("visibility", "hidden");
-        }
-        binder.setTopic(topic, () -> this.cuestionarios);
-        avatarGroup.setTopic(topic);
+        this.cuestionario = value;
+        binder.readBean(this.cuestionario);
 
     }
 }
