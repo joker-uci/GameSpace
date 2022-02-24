@@ -33,10 +33,10 @@ import org.springframework.data.domain.PageRequest;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.gridpro.GridPro;
+
 /*import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;*/
-
 @PageTitle("GNoticias")
 @Route(value = "GNoticias/:noticiasID?/:action?(edit)", layout = MainLayout.class)
 @RolesAllowed("admin")
@@ -45,9 +45,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
     private final String NOTICIAS_ID = "noticiasID";
     private final String NOTICIAS_EDIT_ROUTE_TEMPLATE = "GNoticias/%s/edit";
 
-    private Grid<Noticias> grid = new Grid<>(Noticias.class,false);
-    
-    
+    private Grid<Noticias> grid = new Grid<>(Noticias.class, false);
 
     private TextField titulo;
     private TextField autor;
@@ -56,9 +54,10 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
     private TextField contenido;
 
     private Button cancel = new Button("Cancelar");
-    private Button save = new Button("Guardar");
+    private Button save = new Button("Crear nueva noticia");
+    private Button select = new Button("Seleccionar para eliminar");
     private Button delete = new Button("Eliminar");
-    
+
     private BeanValidationBinder<Noticias> binder;
 
     private Noticias noticias;
@@ -75,11 +74,10 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
 
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
-        delete.setEnabled(false);
+        delete.setVisible(false);
         add(splitLayout);
-
         // Configure Grid
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.setSelectionMode(Grid.SelectionMode.SINGLE);
         grid.addColumn("titulo").setAutoWidth(true);
         grid.addColumn("autor").setAutoWidth(true);
         grid.addColumn("feHoPublicacion").setAutoWidth(true);
@@ -92,29 +90,27 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         grid.setHeightFull();
 
         // when a row is selected or deselected, populate form
-        grid.asMultiSelect().addValueChangeListener(event -> {
-            /*if (event.getValue() != null) {
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            if (event.getValue() != null) {
                 UI.getCurrent().navigate(String.format(NOTICIAS_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
             } else {
                 clearForm();
                 UI.getCurrent().navigate(GNoticiasView.class);
-            }*/
-            if (grid.getSelectedItems().size()>1)
-                delete.setEnabled(true);
+            }
 
         });
- 
-       
         // Configure Form
         binder = new BeanValidationBinder<>(Noticias.class);
-
         // Bind fields. This is where you'd define e.g. validation rules
-
         binder.bindInstanceFields(this);
 //cancelar
         cancel.addClickListener(e -> {
             clearForm();
             refreshGrid();
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
         });
 //salvar
         save.addClickListener(e -> {
@@ -123,8 +119,8 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
                     this.noticias = new Noticias();
                 }
                 binder.writeBean(this.noticias);
-
                 noticiasService.update(this.noticias);
+
                 clearForm();
                 refreshGrid();
                 Notification.show("Noticias details stored.");
@@ -133,18 +129,35 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
                 Notification.show("An exception happened while trying to store the noticias details.");
             }
         });
-        //delete
+        //select
 
+        select.addClickListener(e -> {
+            //if (grid.getSelectedItems().size()>1) {
+            grid.setSelectionMode(Grid.SelectionMode.MULTI);
+            //grid.getSelectedItems().removeAll(grid.getSelectedItems());
+            //clearForm();
+            //refreshGrid();
+            // Notification.show("Noticias eliminadas");
+            // UI.getCurrent().navigate(GNoticiasView.class);
+            //}
+            select.setVisible(false);
+            delete.setVisible(true);
+            save.setVisible(false);
+        });
+        //delete
         delete.addClickListener(e -> {
-                if (grid.getSelectedItems().size()>1) {
-                //binder.writeBean(this.noticias);
-                //noticiasService.delete(
-                grid.getSelectedItems().removeAll(grid.getSelectedItems());
-                clearForm();
-                refreshGrid();
-                Notification.show("Noticias eliminadas");
-                UI.getCurrent().navigate(GNoticiasView.class);
-                }
+
+            grid.getSelectedItems().stream().forEach((t) -> {
+                noticiasService.delete(t.getId());
+            });
+            grid.setItems(query -> noticiasService.list(
+                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+                    .stream());
+            refreshGrid();
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
         });
     }
 
@@ -200,7 +213,9 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         buttonLayout.setSpacing(true);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(save, cancel);
+        select.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        delete.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        buttonLayout.add(select,save , delete, cancel);
         editorLayoutDiv.add(buttonLayout);
     }
 
