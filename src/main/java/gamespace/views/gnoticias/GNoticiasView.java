@@ -30,6 +30,12 @@ import java.util.UUID;
 import javax.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.gridpro.GridPro;
+/*import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;*/
 
 @PageTitle("GNoticias")
 @Route(value = "GNoticias/:noticiasID?/:action?(edit)", layout = MainLayout.class)
@@ -39,7 +45,9 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
     private final String NOTICIAS_ID = "noticiasID";
     private final String NOTICIAS_EDIT_ROUTE_TEMPLATE = "GNoticias/%s/edit";
 
-    private Grid<Noticias> grid = new Grid<>(Noticias.class, false);
+    private Grid<Noticias> grid = new Grid<>(Noticias.class,false);
+    
+    
 
     private TextField titulo;
     private TextField autor;
@@ -47,9 +55,10 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
     private TextField resumen;
     private TextField contenido;
 
-    private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
-
+    private Button cancel = new Button("Cancelar");
+    private Button save = new Button("Guardar");
+    private Button delete = new Button("Eliminar");
+    
     private BeanValidationBinder<Noticias> binder;
 
     private Noticias noticias;
@@ -66,10 +75,11 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
 
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
-
+        delete.setEnabled(false);
         add(splitLayout);
 
         // Configure Grid
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addColumn("titulo").setAutoWidth(true);
         grid.addColumn("autor").setAutoWidth(true);
         grid.addColumn("feHoPublicacion").setAutoWidth(true);
@@ -82,27 +92,31 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         grid.setHeightFull();
 
         // when a row is selected or deselected, populate form
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            if (event.getValue() != null) {
+        grid.asMultiSelect().addValueChangeListener(event -> {
+            /*if (event.getValue() != null) {
                 UI.getCurrent().navigate(String.format(NOTICIAS_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
             } else {
                 clearForm();
                 UI.getCurrent().navigate(GNoticiasView.class);
-            }
-        });
+            }*/
+            if (grid.getSelectedItems().size()>1)
+                delete.setEnabled(true);
 
+        });
+ 
+       
         // Configure Form
         binder = new BeanValidationBinder<>(Noticias.class);
 
         // Bind fields. This is where you'd define e.g. validation rules
 
         binder.bindInstanceFields(this);
-
+//cancelar
         cancel.addClickListener(e -> {
             clearForm();
             refreshGrid();
         });
-
+//salvar
         save.addClickListener(e -> {
             try {
                 if (this.noticias == null) {
@@ -119,10 +133,22 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
                 Notification.show("An exception happened while trying to store the noticias details.");
             }
         });
+        //delete
 
+        delete.addClickListener(e -> {
+                if (grid.getSelectedItems().size()>1) {
+                //binder.writeBean(this.noticias);
+                //noticiasService.delete(
+                grid.getSelectedItems().removeAll(grid.getSelectedItems());
+                clearForm();
+                refreshGrid();
+                Notification.show("Noticias eliminadas");
+                UI.getCurrent().navigate(GNoticiasView.class);
+                }
+        });
     }
 
-    @Override
+    //@Override;
     public void beforeEnter(BeforeEnterEvent event) {
         Optional<UUID> noticiasId = event.getRouteParameters().get(NOTICIAS_ID).map(UUID::fromString);
         if (noticiasId.isPresent()) {
