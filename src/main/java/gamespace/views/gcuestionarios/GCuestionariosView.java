@@ -58,7 +58,10 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
     private TextField promedio5;
 
     private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
+    private Button save = new Button("Crear un nuevo registro");
+    private Button select = new Button("Seleccionar para eliminar");//creado
+    private Button delete = new Button("Eliminar");//creado
+
 
     private BeanValidationBinder<Cuestionarios> binder;
 
@@ -76,7 +79,7 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
 
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
-
+        delete.setVisible(false);
         add(splitLayout);
 
         // Configure Grid
@@ -109,6 +112,10 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
                 clearForm();
                 UI.getCurrent().navigate(GCuestionariosView.class);
             }
+            if (this.cuestionario.getCriterio1() != null || this.cuestionario.getCriterio2() != null || this.cuestionario.getCriterio3() != null || this.cuestionario.getCriterio4() != null || this.cuestionario.getCriterio5() != null|| this.cuestionario.getDescripcion() != null|| this.cuestionario.getFecha() != null|| this.cuestionario.getJuego() != null) {
+                save.setText("Guardar");
+            }
+            select.setVisible(false);
         });
 
         // Configure Form
@@ -130,6 +137,11 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
 
         cancel.addClickListener(e -> {
             clearForm();
+            save.setText("Crear nueva noticia");
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
             refreshGrid();
         });
 
@@ -139,17 +151,40 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
                     this.cuestionario = new Cuestionarios();
                 }
                 binder.writeBean(this.cuestionario);
-
+               if (this.cuestionario.getCriterio1() == null || this.cuestionario.getCriterio2() == null || this.cuestionario.getCriterio3() == null || this.cuestionario.getCriterio4() == null || this.cuestionario.getCriterio5() == null|| this.cuestionario.getDescripcion() == null|| this.cuestionario.getFecha() == null|| this.cuestionario.getJuego() == null) {
+                    Notification.show("Campos vacios");
+                } else {
                 cuestionarioService.update(this.cuestionario);
                 clearForm();
                 refreshGrid();
                 Notification.show("Cuestionario details stored.");
-                UI.getCurrent().navigate(GCuestionariosView.class);
+                UI.getCurrent().navigate(GCuestionariosView.class);}
             } catch (ValidationException validationException) {
                 Notification.show("An exception happened while trying to store the cuestionario details.");
             }
         });
-
+        //select
+        select.addClickListener(e -> {
+            grid.setSelectionMode(Grid.SelectionMode.MULTI);
+            // Notification.show("Noticias eliminadas");
+            select.setVisible(false);
+            delete.setVisible(true);
+            save.setVisible(false);
+        });
+        //delete
+        delete.addClickListener(e -> {
+            grid.getSelectedItems().stream().forEach((t) -> {
+                cuestionarioService.delete(t.getId());
+            });
+            grid.setItems(query -> cuestionarioService.list(
+                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+                    .stream());
+            refreshGrid();
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        });
     }
 
     @Override
@@ -215,7 +250,9 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         buttonLayout.setSpacing(true);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(save, cancel);
+        select.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        delete.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        buttonLayout.add(save, select, delete, cancel);
         editorLayoutDiv.add(buttonLayout);
     }
 

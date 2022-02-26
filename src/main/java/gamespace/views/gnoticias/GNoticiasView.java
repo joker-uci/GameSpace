@@ -54,9 +54,9 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
     private TextField contenido;
 
     private Button cancel = new Button("Cancelar");
-    private Button save = new Button("Crear nueva noticia");
-    private Button select = new Button("Seleccionar para eliminar");
-    private Button delete = new Button("Eliminar");
+    private Button save = new Button("Crear nueva noticia");//modificado el tititulo
+    private Button select = new Button("Seleccionar para eliminar");//creado
+    private Button delete = new Button("Eliminar");//creado
 
     private BeanValidationBinder<Noticias> binder;
 
@@ -74,7 +74,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
 
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
-        delete.setVisible(false);
+        delete.setVisible(false);//ocultar el eliminar
         add(splitLayout);
         // Configure Grid
         grid.setSelectionMode(Grid.SelectionMode.SINGLE);
@@ -98,7 +98,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
                 clearForm();
                 UI.getCurrent().navigate(GNoticiasView.class);
             }
-            // cambio de nombre del boton guardar
+            // cambio de nombre del boton guardar y ocultar el select cuando se esta modificando
             if (this.noticias.getAutor() != null || this.noticias.getFeHoPublicacion() != null || this.noticias.getContenido() != null || this.noticias.getResumen() != null || this.noticias.getTitulo() != null) {
                 save.setText("Guardar");
             }
@@ -111,6 +111,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
 //cancelar
         cancel.addClickListener(e -> {
             clearForm();
+            //configuracion de botones al cancelar
             save.setText("Crear nueva noticia");
             select.setVisible(true);
             delete.setVisible(false);
@@ -141,14 +142,8 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         });
         //select
         select.addClickListener(e -> {
-            //if (grid.getSelectedItems().size()>1) {
             grid.setSelectionMode(Grid.SelectionMode.MULTI);
-            //grid.getSelectedItems().removeAll(grid.getSelectedItems());
-            //clearForm();
-            //refreshGrid();
             // Notification.show("Noticias eliminadas");
-            // UI.getCurrent().navigate(GNoticiasView.class);
-            //}
             select.setVisible(false);
             delete.setVisible(true);
             save.setVisible(false);
@@ -186,7 +181,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
             }
         }
     }
-
+//panel de edicion
     private void createEditorLayout(SplitLayout splitLayout) {
         Div editorLayoutDiv = new Div();
         editorLayoutDiv.setClassName("flex flex-col");
@@ -197,7 +192,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         FormLayout formLayout = new FormLayout();
         titulo = new TextField("Titulo");
         autor = new TextField("Autor");
-        feHoPublicacion = new DateTimePicker("Fe Ho Publicacion");
+        feHoPublicacion = new DateTimePicker("Fecha y hora de la publiación");
         feHoPublicacion.setStep(Duration.ofSeconds(1));
         resumen = new TextField("Resumen");
         contenido = new TextField("Contenido");
