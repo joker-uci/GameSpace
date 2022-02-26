@@ -126,12 +126,12 @@ public class SelectBuscarView extends Div {
         idFilter.setWidth("100%");
         idFilter.setValueChangeMode(ValueChangeMode.EAGER);
         idFilter.addValueChangeListener(event -> gridListDataView.addFilter(
-                client -> StringUtils.containsIgnoreCase(Integer.toString(client.getId()), idFilter.getValue())));
+                client -> StringUtils.containsIgnoreCase(Integer.toString(client.getId() ), idFilter.getValue())));
         filterRow.getCell(idColumn).setComponent(idFilter);
 
         TextField clientFilter = new TextField();
         clientFilter.setPlaceholder("Filter");
-        clientFilter.setClearButtonVisible(true);
+        clientFilter.setClearButtonVisible(true);//imagen
         clientFilter.setWidth("100%");
         clientFilter.setValueChangeMode(ValueChangeMode.EAGER);
         clientFilter.addValueChangeListener(event -> gridListDataView

@@ -86,6 +86,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         grid.setItems(query -> noticiasService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
                 .stream());
+
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 
@@ -97,7 +98,11 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
                 clearForm();
                 UI.getCurrent().navigate(GNoticiasView.class);
             }
-
+            // cambio de nombre del boton guardar
+            if (this.noticias.getAutor() != null || this.noticias.getFeHoPublicacion() != null || this.noticias.getContenido() != null || this.noticias.getResumen() != null || this.noticias.getTitulo() != null) {
+                save.setText("Guardar");
+            }
+            select.setVisible(false);
         });
         // Configure Form
         binder = new BeanValidationBinder<>(Noticias.class);
@@ -106,11 +111,12 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
 //cancelar
         cancel.addClickListener(e -> {
             clearForm();
-            refreshGrid();
+            save.setText("Crear nueva noticia");
             select.setVisible(true);
             delete.setVisible(false);
             save.setVisible(true);
             grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            refreshGrid();
         });
 //salvar
         save.addClickListener(e -> {
@@ -119,18 +125,21 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
                     this.noticias = new Noticias();
                 }
                 binder.writeBean(this.noticias);
-                noticiasService.update(this.noticias);
-
-                clearForm();
-                refreshGrid();
-                Notification.show("Noticias details stored.");
-                UI.getCurrent().navigate(GNoticiasView.class);
+                //--------validar aki q no sean campos vacios
+                if (this.noticias.getAutor() == null || this.noticias.getFeHoPublicacion() == null || this.noticias.getContenido() == null || this.noticias.getResumen() == null || this.noticias.getTitulo() == null) {
+                    Notification.show("Campos vacios");
+                } else {
+                    noticiasService.update(this.noticias);
+                    clearForm();
+                    refreshGrid();
+                    Notification.show("Noticias details stored.");
+                    UI.getCurrent().navigate(GNoticiasView.class);
+                }
             } catch (ValidationException validationException) {
                 Notification.show("An exception happened while trying to store the noticias details.");
             }
         });
         //select
-
         select.addClickListener(e -> {
             //if (grid.getSelectedItems().size()>1) {
             grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -146,7 +155,6 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         });
         //delete
         delete.addClickListener(e -> {
-
             grid.getSelectedItems().stream().forEach((t) -> {
                 noticiasService.delete(t.getId());
             });
@@ -183,11 +191,9 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         Div editorLayoutDiv = new Div();
         editorLayoutDiv.setClassName("flex flex-col");
         editorLayoutDiv.setWidth("400px");
-
         Div editorDiv = new Div();
         editorDiv.setClassName("p-l flex-grow");
         editorLayoutDiv.add(editorDiv);
-
         FormLayout formLayout = new FormLayout();
         titulo = new TextField("Titulo");
         autor = new TextField("Autor");
@@ -196,7 +202,6 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         resumen = new TextField("Resumen");
         contenido = new TextField("Contenido");
         Component[] fields = new Component[]{titulo, autor, feHoPublicacion, resumen, contenido};
-
         for (Component field : fields) {
             ((HasStyle) field).addClassName("full-width");
         }
@@ -215,7 +220,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         select.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(select,save , delete, cancel);
+        buttonLayout.add(select, save, delete, cancel);
         editorLayoutDiv.add(buttonLayout);
     }
 
@@ -239,6 +244,5 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
     private void populateForm(Noticias value) {
         this.noticias = value;
         binder.readBean(this.noticias);
-
     }
 }

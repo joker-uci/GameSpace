@@ -1,6 +1,7 @@
 package gamespace.data.service;
 
 import gamespace.data.entity.Noticias;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class NoticiasService {
         return repository.findAll(pageable);
     }
 
+    public List<Noticias> list() {
+        return repository.findAll();
+    }
     public int count() {
         return (int) repository.count();
     }
