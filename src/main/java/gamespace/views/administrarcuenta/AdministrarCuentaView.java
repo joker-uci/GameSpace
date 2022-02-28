@@ -23,7 +23,7 @@ import gamespace.data.service.SamplePersonService;
 import gamespace.views.MainLayout;
 import javax.annotation.security.RolesAllowed;
 
-@PageTitle("Administrar Cuenta")
+@PageTitle("Editar Cuenta")
 @Route(value = "Administrar-Cuenta", layout = MainLayout.class)
 @RolesAllowed("user")
 @Uses(Icon.class)

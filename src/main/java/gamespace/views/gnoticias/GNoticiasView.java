@@ -33,10 +33,6 @@ import org.springframework.data.domain.PageRequest;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.gridpro.GridPro;
-
-/*import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.grid.HeaderRow;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;*/
 @PageTitle("GNoticias")
 @Route(value = "GNoticias/:noticiasID?/:action?(edit)", layout = MainLayout.class)
 @RolesAllowed("admin")
@@ -213,6 +209,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         buttonLayout.setSpacing(true);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        //botones agregados estilo
         select.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonLayout.add(select, save, delete, cancel);

@@ -76,7 +76,7 @@ public class MainLayout extends AppLayout {
 
             ContextMenu userMenu = new ContextMenu(avatar);
             userMenu.setOpenOnClick(true);
-            userMenu.addItem("Logout", e -> {
+            userMenu.addItem("Cerrar Sesión", e -> {
                 authenticatedUser.logout();
             });
 
@@ -85,7 +85,7 @@ public class MainLayout extends AppLayout {
 
             layout.add(avatar, name);
         } else {
-            Anchor loginLink = new Anchor("login", "Sign in");
+            Anchor loginLink = new Anchor("login", "Autenticarse");
             layout.add(loginLink);
         }
         header.add(layout, createMenu());
@@ -122,8 +122,8 @@ public class MainLayout extends AppLayout {
         if (accessChecker.hasAccess(viewByName.get("Estadistica"))) {
             menuBar.addItem(createLink("Estadistica", EstadisticaView.class));
         }
-        if (accessChecker.hasAccess(viewByName.get("Administrar Cuenta"))) {
-            menuBar.addItem(createLink("Administrar Cuenta", AdministrarCuentaView.class));
+        if (accessChecker.hasAccess(viewByName.get("Editar Cuenta"))) {
+            menuBar.addItem(createLink("Editar Cuenta", AdministrarCuentaView.class));
         }
         if (accessChecker.hasAccess(viewByName.get("Gestionar"))) {
             MenuItem manage = menuBar.addItem("Gestionar");
@@ -137,9 +137,9 @@ public class MainLayout extends AppLayout {
             if (accessChecker.hasAccess(viewByName.get("Gestionar Cuestionarios"))) {
             manageSubMenu.addItem(createLink("Cuestionarios", GCuestionariosView.class));
             }
-            if (accessChecker.hasAccess(viewByName.get("Gestionar Usuarios"))) {
+            /*if (accessChecker.hasAccess(viewByName.get("Gestionar Usuarios"))) {
             manageSubMenu.addItem(createLink("Usuarios", GUsuariosView.class));
-            }
+            }*/
         }
     return menuBar;
     }
@@ -151,12 +151,12 @@ public class MainLayout extends AppLayout {
         viewByName.put("Ayuda", AyudaView.class);
         viewByName.put("Videojuegos", VideojuegosView.class);
         viewByName.put("Estadistica", EstadisticaView.class);
-        viewByName.put("Administrar Cuenta", AdministrarCuentaView.class);
+        viewByName.put("Editar Cuenta", AdministrarCuentaView.class);
         viewByName.put("Gestionar", GestionarView.class);
         viewByName.put("Gestionar Cuestionarios", GCuestionariosView.class);
         viewByName.put("Gestionar Noticias", GNoticiasView.class);
         viewByName.put("Gestionar Videojuegos", GVideojuegosView.class);
-        viewByName.put("Gestionar Usuarios", GUsuariosView.class);
+       // viewByName.put("Gestionar Usuarios", GUsuariosView.class);
     }
 
     private RouterLink createLink(String title, Class<? extends Component> view) {

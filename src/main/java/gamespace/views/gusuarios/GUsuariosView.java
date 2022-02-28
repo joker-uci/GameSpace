@@ -47,8 +47,9 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
     private TextField rol;
 
     private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
-
+    private Button save = new Button("Crear nuevo usuario");
+    private Button select = new Button("Seleccionar para eliminar");//creado
+    private Button delete = new Button("Eliminar");//creado
     private BeanValidationBinder<Usuario> binder;
 
     private Usuario usuario;
@@ -65,7 +66,7 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
 
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
-
+        delete.setVisible(false);
         add(splitLayout);
 
         // Configure Grid
@@ -87,6 +88,10 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
                 clearForm();
                 UI.getCurrent().navigate(GUsuariosView.class);
             }
+            if (this.usuario.getContrasenna()!= null || this.usuario.getFirstName() != null || this.usuario.getRol() != null || this.usuario.getUserName() != null) {
+                save.setText("Guardar");
+            }
+            select.setVisible(false);
         });
 
         // Configure Form
@@ -98,6 +103,11 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
 
         cancel.addClickListener(e -> {
             clearForm();
+            save.setText("Crear nuevo usuario");
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
             refreshGrid();
         });
 
@@ -107,15 +117,39 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
                     this.usuario = new Usuario();
                 }
                 binder.writeBean(this.usuario);
-
+                if (this.usuario.getContrasenna().isEmpty() || this.usuario.getFirstName() == null || this.usuario.getRol() == null || this.usuario.getUserName() == null) {
+                    Notification.show("Campos vacios");
+                } else {
                 usuarioService.update(this.usuario);
                 clearForm();
                 refreshGrid();
                 Notification.show("Usuario details stored.");
-                UI.getCurrent().navigate(GUsuariosView.class);
+                UI.getCurrent().navigate(GUsuariosView.class);}
             } catch (ValidationException validationException) {
                 Notification.show("An exception happened while trying to store the usuario details.");
             }
+        });
+                //select
+        select.addClickListener(e -> {
+            grid.setSelectionMode(Grid.SelectionMode.MULTI);
+            // Notification.show("Noticias eliminadas");
+            select.setVisible(false);
+            delete.setVisible(true);
+            save.setVisible(false);
+        });
+        //delete
+        delete.addClickListener(e -> {
+            grid.getSelectedItems().stream().forEach((t) -> {
+                usuarioService.delete(t.getId());
+            });
+            grid.setItems(query -> usuarioService.list(
+                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+                    .stream());
+            refreshGrid();
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
         });
 
     }
@@ -170,7 +204,9 @@ public class GUsuariosView extends Div implements BeforeEnterObserver {
         buttonLayout.setSpacing(true);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(save, cancel);
+        select.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        delete.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        buttonLayout.add(select, save, delete, cancel);
         editorLayoutDiv.add(buttonLayout);
     }
 
