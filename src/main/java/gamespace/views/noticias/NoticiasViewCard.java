@@ -1,39 +1,50 @@
 package gamespace.views.noticias;
 
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.template.Id;
 
 @JsModule("./views/noticias/noticias-view-card.ts")
 @Tag("noticias-view-card")
-public class NoticiasViewCard extends LitTemplate {
-
+public class NoticiasViewCard extends LitTemplate{
     @Id
-    private Image image;
+    private Div div;
+    public NoticiasViewCard(String titulo, String autor, String feho, String resumen) {
+        //Div div = new Div();
+        div.setClassName("bg-contrast-5 flex flex-col items-start p-m rounded-l");
+        
+        Label tit = new Label();
+        tit.setText(titulo);
+        tit.setClassName("text-xl font-semibold");
 
-    @Id
-    private Span header;
-
-    @Id
-    private Span subtitle;
-
-    @Id
-    private Paragraph text;
-
-    @Id
-    private Span badge;
-
-    public NoticiasViewCard(String text, String url) {
-        this.image.setSrc(url);
-        this.image.setAlt(text);
-        this.header.setText("Title");
-        this.subtitle.setText("Card subtitle");
-        this.text.setText(
-                "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.");
-        this.badge.setText("Label");
+        Div ayf = new Div();
+        ayf.setClassName("text-s text-secondary");
+        Label aut = new Label();
+        Label fecha = new Label();
+        Label a = new Label();
+        aut.setText(autor);
+        fecha.setText(feho);
+        a.setText(" - ");
+        ayf.add(autor);
+        ayf.add(a);
+        ayf.add(fecha);
+        //titulo.addClassName(className);
+        
+        Label resu = new Label();
+        resu.setText(resumen);
+        resu.setClassName("my-m");
+        
+        Button ver = new Button();
+        //ver.addClassName(className);
+        ver.setText("Ver");
+        
+        div.add(titulo);
+        div.add(ayf);
+        div.add(resumen);
+        div.add(ver);
     }
 }

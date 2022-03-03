@@ -7,6 +7,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.template.Id;
+import gamespace.views.noticias.NoticiasView;
 
 @JsModule("./views/videojuegos/videojuegos-view-card.ts")
 @Tag("videojuegos-view-card")
@@ -34,6 +35,7 @@ public class VideojuegosViewCard extends LitTemplate {
         this.subtitle.setText("Card subtitle");
         this.text.setText(
                 "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.");
-        this.badge.setText("Label");
+        this.badge.setText("Detalles");
+        this.badge.add("Detalles");
     }
 }

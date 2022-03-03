@@ -18,10 +18,9 @@ export class AyudaView extends LitElement {
       <main class="max-w-screen-lg mx-auto pb-l px-l">
         <vaadin-horizontal-layout class="items-center justify-between">
           <vaadin-vertical-layout>
-            <h2 class="mb-0 mt-xl text-3xl">Beautiful photos</h2>
-            <p class="mb-xl mt-0 text-secondary">Royalty free photos and pictures, courtesy of Unsplash</p>
+            <h2 class="mb-0 mt-xl text-3xl">Ayuda</h2>
+            <p class="mb-xl mt-0 text-secondary">Las FAQ contienen preguntas y respuestas para los usuarios. Son un canal de retroalimentación a las inquietudes de los usuarios sobre nuestro sitio web y sus contenidos.</p>
           </vaadin-vertical-layout>
-          <vaadin-select label="Sort by" id="sortBy"></vaadin-select>
         </vaadin-horizontal-layout>
         <ol class="gap-m grid list-none m-0 p-0">
           <slot></slot>

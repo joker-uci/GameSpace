@@ -58,8 +58,10 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
     private Upload archDescarga;
     private Image archDescargaPreview;
 
-    private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
+    private Button cancel = new Button("Cancelar");
+    private Button save = new Button("Crear nuevo Videojuego");//modificado el tititulo
+    private Button select = new Button("Seleccionar para eliminar");//creado
+    private Button delete = new Button("Eliminar");//creado
 
     private BeanValidationBinder<Videojuego> binder;
 
@@ -77,7 +79,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
 
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
-
+        delete.setVisible(false);
         add(splitLayout);
 
         // Configure Grid
@@ -109,6 +111,10 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
                 clearForm();
                 UI.getCurrent().navigate(GVideojuegosView.class);
             }
+            if (this.videojuego.getCuestionario()!= null || this.videojuego.getArchDescarga() != null || this.videojuego.getCover() != null || this.videojuego.getDescrpcion() != null || this.videojuego.getFechaLanzamiento() != null|| this.videojuego.getTitulo()!= null) {
+                save.setText("Guardar");
+            }
+            select.setVisible(false);
         });
 
         // Configure Form
@@ -123,6 +129,11 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
 
         cancel.addClickListener(e -> {
             clearForm();
+            save.setText("Crear nueva noticia");
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
             refreshGrid();
         });
 
@@ -132,19 +143,40 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
                     this.videojuego = new Videojuego();
                 }
                 binder.writeBean(this.videojuego);
+                if (this.videojuego.getCuestionario()== null || this.videojuego.getArchDescarga() == null || this.videojuego.getCover() == null || this.videojuego.getDescrpcion() == null || this.videojuego.getFechaLanzamiento() == null|| this.videojuego.getTitulo()== null) {
+                    Notification.show("Campos vacios");
+                } else {
                 this.videojuego.setCover(coverPreview.getSrc());
                 this.videojuego.setArchDescarga(archDescargaPreview.getSrc());
-
                 videojuegoService.update(this.videojuego);
                 clearForm();
                 refreshGrid();
                 Notification.show("Videojuego details stored.");
-                UI.getCurrent().navigate(GVideojuegosView.class);
+                UI.getCurrent().navigate(GVideojuegosView.class);}
             } catch (ValidationException validationException) {
                 Notification.show("An exception happened while trying to store the videojuego details.");
             }
         });
-
+        select.addClickListener(e -> {
+            grid.setSelectionMode(Grid.SelectionMode.MULTI);
+            // Notification.show("Noticias eliminadas");
+            select.setVisible(false);
+            delete.setVisible(true);
+            save.setVisible(false);
+        });
+        delete.addClickListener(e -> {
+            grid.getSelectedItems().stream().forEach((t) -> {
+                videojuegoService.delete(t.getId());
+            });
+            grid.setItems(query -> videojuegoService.list(
+                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+                    .stream());
+            refreshGrid();
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        });
     }
 
     @Override
@@ -185,7 +217,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
         cover = new Upload();
         cover.getStyle().set("box-sizing", "border-box");
         cover.getElement().appendChild(coverPreview.getElement());
-        Label archDescargaLabel = new Label("Arch Descarga");
+        Label archDescargaLabel = new Label("Archivo de descarga");
         archDescargaPreview = new Image();
         archDescargaPreview.setWidth("100%");
         archDescarga = new Upload();
@@ -208,9 +240,9 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
         HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
         buttonLayout.setSpacing(true);
-        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(save, cancel);
+        select.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        delete.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        buttonLayout.add(select, save, delete, cancel);
         editorLayoutDiv.add(buttonLayout);
     }
 

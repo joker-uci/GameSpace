@@ -47,7 +47,7 @@ public class DataGenerator {
             user.setUsername("user");
             user.setHashedPassword(passwordEncoder.encode("user"));
             user.setProfilePictureUrl(
-                    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=128&h=128&q=80");
+                    "D:\\Escritorio\\P5-ISW2\\gamespace\\imag\\png-transparent-avatar-user-profile-male-logo-profile-icon-hand-monochrome-head.png");
             user.setRoles(Collections.singleton(Role.USER));
             userRepository.save(user);
             User admin = new User();
@@ -58,16 +58,16 @@ public class DataGenerator {
                     "https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=128&h=128&q=80");
             admin.setRoles(Stream.of(Role.USER, Role.ADMIN).collect(Collectors.toSet()));
             userRepository.save(admin);
-            logger.info("... generating 100 Usuario entities...");
+            logger.info("... generating 10 Usuario entities...");
             ExampleDataGenerator<Usuario> usuarioRepositoryGenerator = new ExampleDataGenerator<>(Usuario.class,
                     LocalDateTime.of(2022, 2, 15, 0, 0, 0));
             usuarioRepositoryGenerator.setData(Usuario::setFirstName, DataType.FIRST_NAME);
             usuarioRepositoryGenerator.setData(Usuario::setUserName, DataType.WORD);
             usuarioRepositoryGenerator.setData(Usuario::setContrasenna, DataType.TWO_WORDS);
             usuarioRepositoryGenerator.setData(Usuario::setRol, DataType.WORD);
-            usuarioRepository.saveAll(usuarioRepositoryGenerator.create(100, seed));
+            usuarioRepository.saveAll(usuarioRepositoryGenerator.create(10, seed));
 
-            logger.info("... generating 100 Noticias entities...");
+            logger.info("... generating 9 Noticias entities...");
             ExampleDataGenerator<Noticias> noticiasRepositoryGenerator = new ExampleDataGenerator<>(Noticias.class,
                     LocalDateTime.of(2022, 2, 15, 0, 0, 0));
             noticiasRepositoryGenerator.setData(Noticias::setTitulo, DataType.SENTENCE);
@@ -75,9 +75,9 @@ public class DataGenerator {
             noticiasRepositoryGenerator.setData(Noticias::setFeHoPublicacion, DataType.DATETIME_LAST_10_YEARS);
             noticiasRepositoryGenerator.setData(Noticias::setResumen, DataType.SENTENCE);
             noticiasRepositoryGenerator.setData(Noticias::setContenido, DataType.SENTENCE);
-            noticiasRepository.saveAll(noticiasRepositoryGenerator.create(100, seed));
+            noticiasRepository.saveAll(noticiasRepositoryGenerator.create(9, seed));
 
-            logger.info("... generating 100 Cuestionarios entities...");
+            logger.info("... generating 20 Cuestionarios entities...");
             ExampleDataGenerator<Cuestionarios> cuestionariosRepositoryGenerator = new ExampleDataGenerator<>(
                     Cuestionarios.class, LocalDateTime.of(2022, 2, 15, 0, 0, 0));
             cuestionariosRepositoryGenerator.setData(Cuestionarios::setCuestionario, DataType.UUID);
@@ -95,9 +95,9 @@ public class DataGenerator {
             cuestionariosRepositoryGenerator.setData(Cuestionarios::setPromedio4, DataType.NUMBER_UP_TO_100);
             cuestionariosRepositoryGenerator.setData(Cuestionarios::setCriterio5, DataType.SENTENCE);
             cuestionariosRepositoryGenerator.setData(Cuestionarios::setPromedio5, DataType.NUMBER_UP_TO_100);
-            cuestionariosRepository.saveAll(cuestionariosRepositoryGenerator.create(100, seed));
+            cuestionariosRepository.saveAll(cuestionariosRepositoryGenerator.create(20, seed));
 
-            logger.info("... generating 100 Videojuego entities...");
+            logger.info("... generating 10 Videojuego entities...");
             ExampleDataGenerator<Videojuego> videojuegoRepositoryGenerator = new ExampleDataGenerator<>(
                     Videojuego.class, LocalDateTime.of(2022, 2, 15, 0, 0, 0));
             videojuegoRepositoryGenerator.setData(Videojuego::setTitulo, DataType.FIRST_NAME);
@@ -106,7 +106,7 @@ public class DataGenerator {
             videojuegoRepositoryGenerator.setData(Videojuego::setFechaLanzamiento, DataType.DATE_OF_BIRTH);
             videojuegoRepositoryGenerator.setData(Videojuego::setCover, DataType.BOOK_IMAGE_URL);
             videojuegoRepositoryGenerator.setData(Videojuego::setArchDescarga, DataType.PROFILE_PICTURE_URL);
-            videojuegoRepository.saveAll(videojuegoRepositoryGenerator.create(100, seed));
+            videojuegoRepository.saveAll(videojuegoRepositoryGenerator.create(10, seed));
 
             logger.info("Generated demo data");
         };

@@ -20,6 +20,7 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import gamespace.data.entity.User;
 import gamespace.data.service.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
         
 @PageTitle("Login")
 @Route(value = "login")
@@ -88,9 +89,6 @@ formLayout.setResponsiveSteps(
         );
         // Stretch the username field over 2 columns
         formLayout.setColspan(username, 2);
-
-        
-
         Button cancelButton = new Button("Cancel", e -> dialog.close());
         Button saveButton = new Button("Save", e ->{
         User user = new User();
