@@ -43,9 +43,6 @@ import java.util.TreeMap;
 public class MainLayout extends AppLayout {
 
     private Map<String, Class<?>> viewByName;
-
-   
-
     private AuthenticatedUser authenticatedUser;
     private AccessAnnotationChecker accessChecker;
 
@@ -91,22 +88,6 @@ public class MainLayout extends AppLayout {
         header.add(layout, createMenu());
         return header;
     }
-/*
-    private MenuItemInfo[] createMenuItems() {
-        return new MenuItemInfo[]{ //
-            new MenuItemInfo("Inicio", "la la-home", InicioView.class), //
-
-            new MenuItemInfo("Ayuda", "la la-thumbs-up", AyudaView.class), //
-
-            new MenuItemInfo("Videojuegos", "lab la-the-red-yeti", VideojuegosView.class), //
-
-            new MenuItemInfo("Estadistica", "la la-chart-area", EstadisticaView.class), //
-
-            new MenuItemInfo("Gestionar", "la la-th-list", GestionarView.class), //
-        //new MenuItemInfo("Empty", "la la-file", EmptyView.class), //
-        };
-    }
-*/
     private MenuBar createMenu() {
         MenuBar menuBar = new MenuBar();
 

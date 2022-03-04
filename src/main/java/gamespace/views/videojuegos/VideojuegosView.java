@@ -10,7 +10,11 @@ import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import gamespace.data.entity.Videojuego;
+import gamespace.data.service.VideojuegoService;
+import gamespace.security.AuthenticatedUser;
 import gamespace.views.MainLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @PageTitle("Videojuegos")
 @Route(value = "Videojuegos", layout = MainLayout.class)
@@ -21,23 +25,25 @@ public class VideojuegosView extends LitTemplate implements HasComponents, HasSt
 
     @Id
     private Select<String> sortBy;
+    private Videojuego videojuego;
+    private VideojuegoService videojuegoService;
+    private AuthenticatedUser authenticatedUser;
 
-    public VideojuegosView() {
+    public VideojuegosView(@Autowired VideojuegoService videojuegoService, AuthenticatedUser authenticatedUser) {
+        this.authenticatedUser = authenticatedUser;
+        //System.out.println("authenticatedUser > " + this.authenticatedUser.get() );
         addClassNames("videojuegos-view", "flex", "flex-col", "h-full");
-        sortBy.setItems("Popularity", "Newest first", "Oldest first");
-        sortBy.setValue("Popularity");
+        sortBy.setItems("Popularidad", "Recientes primero", "Antiguos primero");
+        sortBy.setValue("Popularidad");
+        this.videojuegoService = videojuegoService;
+        videojuego = videojuegoService.list().get(0);
 
-        add(new VideojuegosViewCard("Snow mountains under stars",
-                "https://images.unsplash.com/photo-1519681393784-d120267933ba?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"));
-        add(new VideojuegosViewCard("Snow covered mountain",
-                "https://images.unsplash.com/photo-1512273222628-4daea6e55abb?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"));
-        add(new VideojuegosViewCard("River between mountains",
-                "https://images.unsplash.com/photo-1536048810607-3dc7f86981cb?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=375&q=80"));
-        add(new VideojuegosViewCard("Milky way on mountains",
-                "https://images.unsplash.com/photo-1515705576963-95cad62945b6?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=750&q=80"));
-        add(new VideojuegosViewCard("Mountain with fog",
-                "https://images.unsplash.com/photo-1513147122760-ad1d5bf68cdb?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"));
-        add(new VideojuegosViewCard("Mountain at night",
-                "https://images.unsplash.com/photo-1562832135-14a35d25edef?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=815&q=80"));
+        for (Videojuego videojuego : videojuegoService.list()) {
+            add(new VideojuegosViewCard(videojuego.getTitulo(), videojuego.getCover(), 
+                    videojuego.getDescrpcion(), videojuego.getFechaLanzamiento().toString(),
+                    videojuego.getCuestionario(), videojuego.getArchDescarga(), this.authenticatedUser.get().isPresent()));
+        };
+
     }
+
 }

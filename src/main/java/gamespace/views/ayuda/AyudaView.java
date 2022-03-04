@@ -40,8 +40,7 @@ public class AyudaView extends LitTemplate implements HasComponents, HasStyle {
         add(Card("¿Cómo publico en el portal el resultado de mi Ranking? ","Si ya tienes una cuenta en el portal, el usuario y el pin de seguridad deben coincidir con el usuario y el pin del perfil del videojuego que estás jugando. Los videojuegos deben mostrar un botón publicar ranking en dependencia del contenido del videojuego.\n" +
 "\n" +
 "Si no tiene usuario creado previamente en el portal, automáticamente se creará uno, con el mismo usuario y pin del videojuego. El portal le dirá entonces cuál será su contraseña."));
-        add(Card("¿Cómo colaborar con Cosmox? ","Si usted desea colaborar con noticias para enriquecer nuestro portal con los últimos acontecimientos en el área de los videojuegos, puede enviar un correo con la propuesta a la dirección vertex@uci.cu. Su noticia será analizada por un equipo de moderadores, quienes se encargarán de aprobar su publicación en el portal."));
-        
+        add(Card("¿Cómo colaborar con Cosmox? ","Si usted desea colaborar con noticias para enriquecer nuestro portal con los últimos acontecimientos en el área de los videojuegos, puede enviar un correo con la propuesta a la dirección vertex@uci.cu. Su noticia será analizada por un equipo de moderadores, quienes se encargarán de aprobar su publicación en el portal.")); 
     }
     
         Div Card (String titulo, String contenido){

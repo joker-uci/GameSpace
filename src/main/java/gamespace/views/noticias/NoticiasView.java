@@ -47,18 +47,10 @@ public class NoticiasView extends LitTemplate implements HasComponents, HasStyle
         sortBy.setValue("Reciente primero");
         this.noticiasService = noticiasService;
         noticias = noticiasService.list().get(0);
-
-       Notification.show(noticias.getAutor());
         for (Noticias noticia : noticiasService.list()) {
         add(Card(noticia.getTitulo(), noticia.getAutor(), noticia.getFeHoPublicacion().toString(),
                 noticia.getResumen(), noticia.getContenido()));
         }
-    
-//        add(new NoticiasViewCard("2", "eustaquia", "12-12-12 12:00", "aesrjdtfuyrthdrsgegdrtghjhgftdrse"));
-//        add(new NoticiasViewCard("3", "maria rosa", "12-12-12 12:00", "aesrjdtfuyrthdrsgegdrtghjhgftdrse"));
-//        add(new NoticiasViewCard("4", "gumercindo", "12-12-12 12:00", "aesrjdtfuyrthdrsgegdrtghjhgftdrse"));
-//        add(new NoticiasViewCard("5", "gumercindo", "12-12-12 12:00", "aesrjdtfuyrthdrsgegdrtghjhgftdrse"));
-//        add(new NoticiasViewCard("6", "gumercindo", "12-12-12 12:00", "aesrjdtfuyrthdrsgegdrtghjhgftdrse"));
     }
     
     Div Card (String titulo, String autor, String feho, String resumen, String contenido){
@@ -107,9 +99,9 @@ public class NoticiasView extends LitTemplate implements HasComponents, HasStyle
         return div;
 }
 
-    private void For(int i, boolean b, int i0) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    /* private void For(int i, boolean b, int i0) {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }*/
     private static VerticalLayout createDialogLayout(Dialog dialog, String titulo, String contenido) {
         H2 headline = new H2(titulo);
         headline.getStyle().set("margin", "var(--lumo-space-m) 0")

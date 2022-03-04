@@ -1,6 +1,8 @@
 package gamespace.data.service;
 
+import gamespace.data.entity.Noticias;
 import gamespace.data.entity.Videojuego;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,9 @@ public class VideojuegoService {
     public Page<Videojuego> list(Pageable pageable) {
         return repository.findAll(pageable);
     }
-
+    public List<Videojuego> list() {
+        return repository.findAll();
+    }
     public int count() {
         return (int) repository.count();
     }
