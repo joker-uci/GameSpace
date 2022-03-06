@@ -6,14 +6,19 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
@@ -28,6 +33,7 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import elemental.json.Json;
 import gamespace.data.entity.Videojuego;
 import gamespace.data.service.VideojuegoService;
+import gamespace.security.AuthenticatedUser;
 import gamespace.views.MainLayout;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -111,7 +117,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
                 clearForm();
                 UI.getCurrent().navigate(GVideojuegosView.class);
             }
-            if (this.videojuego.getCuestionario()!= null || this.videojuego.getArchDescarga() != null || this.videojuego.getCover() != null || this.videojuego.getDescrpcion() != null || this.videojuego.getFechaLanzamiento() != null|| this.videojuego.getTitulo()!= null) {
+            if (!this.videojuego.getCuestionario().isEmpty() || !this.videojuego.getArchDescarga().isEmpty() || !this.videojuego.getCover().isEmpty() || !this.videojuego.getDescrpcion().isEmpty() || this.videojuego.getFechaLanzamiento() != null || !this.videojuego.getTitulo().isEmpty()) {
                 save.setText("Guardar");
             }
             select.setVisible(false);
@@ -121,7 +127,6 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
         binder = new BeanValidationBinder<>(Videojuego.class);
 
         // Bind fields. This is where you'd define e.g. validation rules
-
         binder.bindInstanceFields(this);
 
         attachImageUpload(cover, coverPreview);
@@ -129,7 +134,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
 
         cancel.addClickListener(e -> {
             clearForm();
-            save.setText("Crear nueva noticia");
+            save.setText("Crear nuevo videojuego");
             select.setVisible(true);
             delete.setVisible(false);
             save.setVisible(true);
@@ -143,18 +148,19 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
                     this.videojuego = new Videojuego();
                 }
                 binder.writeBean(this.videojuego);
-                if (this.videojuego.getCuestionario()== null || this.videojuego.getArchDescarga() == null || this.videojuego.getCover() == null || this.videojuego.getDescrpcion() == null || this.videojuego.getFechaLanzamiento() == null|| this.videojuego.getTitulo()== null) {
+                if (this.videojuego.getCuestionario().isEmpty() || this.videojuego.getArchDescarga().isEmpty() || this.videojuego.getCover().isEmpty() || this.videojuego.getDescrpcion().isEmpty() || this.videojuego.getFechaLanzamiento() == null || this.videojuego.getTitulo().isEmpty()) {
                     Notification.show("Campos vacios");
                 } else {
-                this.videojuego.setCover(coverPreview.getSrc());
-                this.videojuego.setArchDescarga(archDescargaPreview.getSrc());
-                videojuegoService.update(this.videojuego);
-                clearForm();
-                refreshGrid();
-                Notification.show("Videojuego details stored.");
-                UI.getCurrent().navigate(GVideojuegosView.class);}
+                    this.videojuego.setCover(coverPreview.getSrc());
+                    this.videojuego.setArchDescarga(archDescargaPreview.getSrc());
+                    videojuegoService.update(this.videojuego);
+                    clearForm();
+                    Notification.show("Videojuego Guardado");
+                    UI.getCurrent().navigate(GVideojuegosView.class);
+                    refreshGrid();
+                }
             } catch (ValidationException validationException) {
-                Notification.show("An exception happened while trying to store the videojuego details.");
+                Notification.show("Un error ha ocurrido mientras se guardaba el videojuego");
             }
         });
         select.addClickListener(e -> {
@@ -165,17 +171,22 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
             save.setVisible(false);
         });
         delete.addClickListener(e -> {
-            grid.getSelectedItems().stream().forEach((t) -> {
-                videojuegoService.delete(t.getId());
-            });
-            grid.setItems(query -> videojuegoService.list(
-                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
-                    .stream());
+            Dialog dialog = new Dialog();
+            VerticalLayout dialogLayout = createDialogLayout(dialog, videojuegoService, grid, delete, select, save);
+            dialog.add(dialogLayout);
+            dialog.open();
+//            grid.getSelectedItems().stream().forEach((t) -> {
+//                videojuegoService.delete(t.getId());
+//            });
+//            grid.setItems(query -> videojuegoService.list(
+//                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+//                    .stream());
+//            select.setVisible(true);
+//            delete.setVisible(false);
+//            save.setVisible(true);
+//            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+//            Notification.show("Videojuego eliminado");
             refreshGrid();
-            select.setVisible(true);
-            delete.setVisible(false);
-            save.setVisible(true);
-            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
         });
     }
 
@@ -209,7 +220,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
         FormLayout formLayout = new FormLayout();
         titulo = new TextField("Titulo");
         cuestionario = new TextField("Cuestionario");
-        descrpcion = new TextField("Descrpcion");
+        descrpcion = new TextField("Descrpción");
         fechaLanzamiento = new DatePicker("Fecha Lanzamiento");
         Label coverLabel = new Label("Cover");
         coverPreview = new Image();
@@ -224,7 +235,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
         archDescarga.getStyle().set("box-sizing", "border-box");
         archDescarga.getElement().appendChild(archDescargaPreview.getElement());
         Component[] fields = new Component[]{titulo, cuestionario, descrpcion, fechaLanzamiento, coverLabel, cover,
-                archDescargaLabel, archDescarga};
+            archDescargaLabel, archDescarga};
 
         for (Component field : fields) {
             ((HasStyle) field).addClassName("full-width");
@@ -273,8 +284,9 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
     }
 
     private void refreshGrid() {
-        grid.select(null);
         grid.getLazyDataView().refreshAll();
+        grid.select(null);
+        UI.getCurrent().getPage().reload();
     }
 
     private void clearForm() {
@@ -297,5 +309,53 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
             this.archDescargaPreview.setSrc(value.getArchDescarga());
         }
 
+    }
+
+    private static VerticalLayout createDialogLayout(Dialog dialog, VideojuegoService videojuegoService, Grid<Videojuego> grid, Button delete, Button select, Button save) {
+        H1 headline = new H1("¡Precaución!");
+        headline.getStyle().set("margin", "var(--lumo-space-m) 0 0 0")
+                .set("font-size", "1.5em").set("font-weight", "bold");
+        H4 texto = new H4("¿Está usted seguro que desea eliminar?");
+        VerticalLayout fieldLayout = new VerticalLayout(texto);
+        fieldLayout.setSpacing(false);
+        fieldLayout.setPadding(false);
+        fieldLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+
+        Button aceptar = new Button("Aceptar", e -> {
+            grid.getSelectedItems().stream().forEach((t) -> {
+                videojuegoService.delete(t.getId());
+            });
+            grid.setItems(query -> videojuegoService.list(
+                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+                    .stream());
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            Notification.show("Videojuego eliminado");
+            dialog.close();
+        });
+        Button cancelar = new Button("Cancelar", e -> {
+            save.setText("Crear nuevo videojuego");
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            dialog.close();
+        });
+        cancelar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        aceptar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        HorizontalLayout buttonLayout = new HorizontalLayout(aceptar,
+                cancelar);
+        buttonLayout
+                .setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+
+        VerticalLayout dialogLayout = new VerticalLayout(headline, fieldLayout,
+                buttonLayout);
+        dialogLayout.setPadding(false);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "300px").set("max-width", "100%");
+
+        return dialogLayout;
     }
 }

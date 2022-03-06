@@ -6,6 +6,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -30,6 +31,13 @@ import javax.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import gamespace.data.entity.Videojuego;
+import gamespace.data.service.VideojuegoService;
+
 @PageTitle("GNoticias")
 @Route(value = "GNoticias/:noticiasID?/:action?(edit)", layout = MainLayout.class)
 @RolesAllowed("admin")
@@ -92,7 +100,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
                 UI.getCurrent().navigate(GNoticiasView.class);
             }
             // cambio de nombre del boton guardar y ocultar el select cuando se esta modificando
-            if (this.noticias.getAutor() != null || this.noticias.getFeHoPublicacion() != null || this.noticias.getContenido() != null || this.noticias.getResumen() != null || this.noticias.getTitulo() != null) {
+            if (!this.noticias.getAutor().isEmpty() || this.noticias.getFeHoPublicacion() == null || !this.noticias.getContenido().isEmpty() || !this.noticias.getResumen().isEmpty() || !this.noticias.getTitulo().isEmpty()) {
                 save.setText("Guardar");
             }
             select.setVisible(false);
@@ -120,17 +128,22 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
                 }
                 binder.writeBean(this.noticias);
                 //--------validar aki q no sean campos vacios
-                if (this.noticias.getAutor() == null || this.noticias.getFeHoPublicacion() == null || this.noticias.getContenido() == null || this.noticias.getResumen() == null || this.noticias.getTitulo() == null) {
+                if (this.noticias.getAutor().isEmpty() || this.noticias.getFeHoPublicacion() == null || this.noticias.getContenido().isEmpty() || this.noticias.getResumen().isEmpty() || this.noticias.getTitulo().isEmpty()) {
                     Notification.show("Campos vacios");
                 } else {
                     noticiasService.update(this.noticias);
+                    Notification.show("Noticia guardada");
                     clearForm();
+                    save.setText("Crear nueva noticia");///--------------------------corregir en los otros
+                    select.setVisible(true);///--------------------------corregir en los otros
+                    delete.setVisible(false);///--------------------------corregir en los otros
+                    save.setVisible(true);///--------------------------corregir en los otros
                     refreshGrid();
-                    Notification.show("Noticias details stored.");
                     UI.getCurrent().navigate(GNoticiasView.class);
+                    refreshGrid();
                 }
             } catch (ValidationException validationException) {
-                Notification.show("An exception happened while trying to store the noticias details.");
+                Notification.show("Un error ha ocurrido mientras se guardaba la noticia");
             }
         });
         //select
@@ -143,17 +156,22 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         });
         //delete
         delete.addClickListener(e -> {
-            grid.getSelectedItems().stream().forEach((t) -> {
-                noticiasService.delete(t.getId());
-            });
-            grid.setItems(query -> noticiasService.list(
-                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
-                    .stream());
+            Dialog dialog = new Dialog();
+            VerticalLayout dialogLayout = createDialogLayout(dialog, noticiasService, grid, delete, select, save);
+            dialog.add(dialogLayout);
+            dialog.open();
+//            grid.getSelectedItems().stream().forEach((t) -> {
+//                noticiasService.delete(t.getId());
+//            });
+//            grid.setItems(query -> noticiasService.list(
+//                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+//                    .stream());
+//            Notification.show("Noticia eliminada");/////--------------------------corregir en los otros
             refreshGrid();
-            select.setVisible(true);
-            delete.setVisible(false);
-            save.setVisible(true);
-            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+//            select.setVisible(true);
+//            delete.setVisible(false);
+//            save.setVisible(true);
+//            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
         });
     }
 
@@ -175,6 +193,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         }
     }
 //panel de edicion
+
     private void createEditorLayout(SplitLayout splitLayout) {
         Div editorLayoutDiv = new Div();
         editorLayoutDiv.setClassName("flex flex-col");
@@ -222,8 +241,9 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
     }
 
     private void refreshGrid() {
-        grid.select(null);
         grid.getLazyDataView().refreshAll();
+        grid.select(null);
+        UI.getCurrent().getPage().reload();
     }
 
     private void clearForm() {
@@ -233,5 +253,53 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
     private void populateForm(Noticias value) {
         this.noticias = value;
         binder.readBean(this.noticias);
+    }
+
+    private static VerticalLayout createDialogLayout(Dialog dialog, NoticiasService noticiasService, Grid<Noticias> grid, Button delete, Button select, Button save) {
+        H1 headline = new H1("¡Precaución!");
+        headline.getStyle().set("margin", "var(--lumo-space-m) 0 0 0")
+                .set("font-size", "1.5em").set("font-weight", "bold");
+        H4 texto = new H4("¿Está usted seguro que desea eliminar?");
+        VerticalLayout fieldLayout = new VerticalLayout(texto);
+        fieldLayout.setSpacing(false);
+        fieldLayout.setPadding(false);
+        fieldLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+
+        Button aceptar = new Button("Aceptar", e -> {
+            grid.getSelectedItems().stream().forEach((t) -> {
+                noticiasService.delete(t.getId());
+            });
+            grid.setItems(query -> noticiasService.list(
+                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+                    .stream());
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            Notification.show("Noticia eliminada");
+            dialog.close();
+        });
+        Button cancelar = new Button("Cancelar", e -> {
+            save.setText("Crear nueva noticia");
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            dialog.close();
+        });
+        cancelar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        aceptar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        HorizontalLayout buttonLayout = new HorizontalLayout(aceptar,
+                cancelar);
+        buttonLayout
+                .setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+
+        VerticalLayout dialogLayout = new VerticalLayout(headline, fieldLayout,
+                buttonLayout);
+        dialogLayout.setPadding(false);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "300px").set("max-width", "100%");
+
+        return dialogLayout;
     }
 }

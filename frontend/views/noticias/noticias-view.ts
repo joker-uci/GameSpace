@@ -21,7 +21,7 @@ export class NoticiasView extends LitElement {
             <h2 class="mb-0 mt-xl text-3xl">Noticias</h2>
             <p class="mb-xl mt-0 text-secondary">Sección dedicada para las noticias más actuales</p>
           </vaadin-vertical-layout>
-          <vaadin-select label="Ordenar" id="sortBy"></vaadin-select>
+          <vaadin-select label="Ordenar" id="sortBy" hidden></vaadin-select>
         </vaadin-horizontal-layout>
         <ol class="gap-m grid list-none m-0 p-0">
           <slot></slot>

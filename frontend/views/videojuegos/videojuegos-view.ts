@@ -21,7 +21,7 @@ export class VideojuegosView extends LitElement {
             <h2 class="mb-0 mt-xl text-3xl">Videojuegos</h2>
             <p class="mb-xl mt-0 text-secondary">Una mirada al universo de los videojuegos en Cuba.</p>
           </vaadin-vertical-layout>
-          <vaadin-select label="Ordenar por" id="sortBy"></vaadin-select>
+          <vaadin-select label="Ordenar por" id="sortBy" hidden></vaadin-select>
         </vaadin-horizontal-layout>
         <ol class="gap-m grid list-none m-0 p-0">
           <slot></slot>

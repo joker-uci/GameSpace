@@ -10,11 +10,14 @@ import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import gamespace.data.entity.Cuestionarios;
 import gamespace.data.entity.Videojuego;
+import gamespace.data.service.CuestionariosService;
 import gamespace.data.service.VideojuegoService;
 import gamespace.security.AuthenticatedUser;
 import gamespace.views.MainLayout;
 import org.springframework.beans.factory.annotation.Autowired;
+
 
 @PageTitle("Videojuegos")
 @Route(value = "Videojuegos", layout = MainLayout.class)
@@ -28,9 +31,12 @@ public class VideojuegosView extends LitTemplate implements HasComponents, HasSt
     private Videojuego videojuego;
     private VideojuegoService videojuegoService;
     private AuthenticatedUser authenticatedUser;
+    private Cuestionarios cuestionario;
+    private CuestionariosService cuestionarioService;
 
-    public VideojuegosView(@Autowired VideojuegoService videojuegoService, AuthenticatedUser authenticatedUser) {
+    public VideojuegosView(@Autowired VideojuegoService videojuegoService, AuthenticatedUser authenticatedUser, CuestionariosService cuestionarioService) {
         this.authenticatedUser = authenticatedUser;
+        this.cuestionarioService = cuestionarioService;
         //System.out.println("authenticatedUser > " + this.authenticatedUser.get() );
         addClassNames("videojuegos-view", "flex", "flex-col", "h-full");
         sortBy.setItems("Popularidad", "Recientes primero", "Antiguos primero");
@@ -41,9 +47,8 @@ public class VideojuegosView extends LitTemplate implements HasComponents, HasSt
         for (Videojuego videojuego : videojuegoService.list()) {
             add(new VideojuegosViewCard(videojuego.getTitulo(), videojuego.getCover(), 
                     videojuego.getDescrpcion(), videojuego.getFechaLanzamiento().toString(),
-                    videojuego.getCuestionario(), videojuego.getArchDescarga(), this.authenticatedUser.get().isPresent()));
+                    videojuego.getCuestionario(), videojuego.getArchDescarga(), this.authenticatedUser.get().isPresent(),cuestionarioService));
         };
-
     }
 
 }

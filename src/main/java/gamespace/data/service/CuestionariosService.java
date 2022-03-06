@@ -1,6 +1,8 @@
 package gamespace.data.service;
 
 import gamespace.data.entity.Cuestionarios;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,4 +39,24 @@ public class CuestionariosService {
         return (int) repository.count();
     }
 
+    public List <Cuestionarios> todosCuest() {
+        List Cuestionarios = new ArrayList();
+        for(Cuestionarios cuestionario:repository.findAll()){
+        Cuestionarios.add(cuestionario);
+        };
+        return Cuestionarios;
+    }
+    public Cuestionarios findByVideoj(String titulo) {
+        List cuest = new ArrayList();
+        cuest.addAll(todosCuest());
+        Cuestionarios cuestionario = new Cuestionarios();
+        
+        for (int i = 0; i < cuest.size(); i++) {
+            cuestionario = (Cuestionarios) cuest.get(i);
+            if (titulo == cuestionario.getJuego()) {
+                return cuestionario;
+            }
+        }
+        return null;
+    }
 }

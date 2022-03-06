@@ -2,16 +2,22 @@ package gamespace.views.gcuestionarios;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
+import static com.vaadin.flow.component.Tag.H1;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -40,7 +46,7 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
     private final String CUESTIONARIO_EDIT_ROUTE_TEMPLATE = "GCuestionarios/%s/edit";
 
     private Grid<Cuestionarios> grid = new Grid<>(Cuestionarios.class, false);
-    
+
     private TextField nombCuestionario;
     private TextField juego;
     private TextField descripcion;
@@ -62,7 +68,6 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
     private Button select = new Button("Seleccionar para eliminar");//creado
     private Button delete = new Button("Eliminar");//creado
 
-
     private BeanValidationBinder<Cuestionarios> binder;
 
     private Cuestionarios cuestionario;
@@ -83,7 +88,7 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         add(splitLayout);
 
         // Configure Grid
-        grid.addColumn("cuestionario").setAutoWidth(true);
+//        grid.addColumn("cuestionario").setAutoWidth(true);
         grid.addColumn("juego").setAutoWidth(true);
         grid.addColumn("descripcion").setAutoWidth(true);
         grid.addColumn("fecha").setAutoWidth(true);
@@ -112,32 +117,32 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
                 clearForm();
                 UI.getCurrent().navigate(GCuestionariosView.class);
             }
-            if (this.cuestionario.getCriterio1() != null || this.cuestionario.getCriterio2() != null || this.cuestionario.getCriterio3() != null || this.cuestionario.getCriterio4() != null || this.cuestionario.getCriterio5() != null|| this.cuestionario.getDescripcion() != null|| this.cuestionario.getFecha() != null|| this.cuestionario.getJuego() != null) {
+            if (!this.cuestionario.getCriterio1().isEmpty() || !this.cuestionario.getCriterio2().isEmpty() || !this.cuestionario.getCriterio3().isEmpty() || !this.cuestionario.getCriterio4().isEmpty() || !this.cuestionario.getCriterio5().isEmpty() || !this.cuestionario.getDescripcion().isEmpty() || this.cuestionario.getFecha() != null || !this.cuestionario.getJuego().isEmpty()) {
                 save.setText("Guardar");
             }
             select.setVisible(false);
         });
 
-        // Configure Form
+// Configure Form
         binder = new BeanValidationBinder<>(Cuestionarios.class);
 
         // Bind fields. This is where you'd define e.g. validation rules
-        binder.forField(promedio1).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(promedio1).withConverter(new StringToIntegerConverter("Solo numeros permitidos"))
                 .bind("promedio1");
-        binder.forField(promedio2).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(promedio2).withConverter(new StringToIntegerConverter("Solo numeros permitidos"))
                 .bind("promedio2");
-        binder.forField(proedio3).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(proedio3).withConverter(new StringToIntegerConverter("Solo numeros permitidos"))
                 .bind("proedio3");
-        binder.forField(promedio4).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(promedio4).withConverter(new StringToIntegerConverter("Solo numeros permitidos"))
                 .bind("promedio4");
-        binder.forField(promedio5).withConverter(new StringToIntegerConverter("Only numbers are allowed"))
+        binder.forField(promedio5).withConverter(new StringToIntegerConverter("Solo numeros permitidos"))
                 .bind("promedio5");
 
         binder.bindInstanceFields(this);
 
         cancel.addClickListener(e -> {
             clearForm();
-            save.setText("Crear nueva noticia");
+            save.setText("Crear nuevo cuestionario");
             select.setVisible(true);
             delete.setVisible(false);
             save.setVisible(true);
@@ -151,17 +156,25 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
                     this.cuestionario = new Cuestionarios();
                 }
                 binder.writeBean(this.cuestionario);
-               if (this.cuestionario.getCriterio1() == null || this.cuestionario.getCriterio2() == null || this.cuestionario.getCriterio3() == null || this.cuestionario.getCriterio4() == null || this.cuestionario.getCriterio5() == null|| this.cuestionario.getDescripcion() == null|| this.cuestionario.getFecha() == null|| this.cuestionario.getJuego() == null) {
+                if (this.cuestionario.getCriterio1().isEmpty() || this.cuestionario.getCriterio2().isEmpty() || this.cuestionario.getCriterio3().isEmpty() || this.cuestionario.getCriterio4().isEmpty() || this.cuestionario.getCriterio5().isEmpty() || this.cuestionario.getDescripcion().isEmpty() || this.cuestionario.getFecha() == null || this.cuestionario.getJuego().isEmpty()) {
                     Notification.show("Campos vacios");
                 } else {
-                cuestionarioService.update(this.cuestionario);
-                clearForm();
-                refreshGrid();
-                Notification.show("Cuestionario details stored.");
-                UI.getCurrent().navigate(GCuestionariosView.class);}
+                    cuestionarioService.update(this.cuestionario);
+                    clearForm();
+
+                    save.setText("Crear nuevo cuestionario");///--------------------------corregir en los otros
+                    select.setVisible(true);///--------------------------corregir en los otros
+                    delete.setVisible(false);///--------------------------corregir en los otros
+                    save.setVisible(true);
+                    Notification.show("Cuestionario guardado");
+                    refreshGrid();
+                    UI.getCurrent().navigate(GCuestionariosView.class);
+                    refreshGrid();
+                }
             } catch (ValidationException validationException) {
-                Notification.show("An exception happened while trying to store the cuestionario details.");
+                Notification.show("Un error ha ocurrido mientras se guardaba el cuestionario");
             }
+            refreshGrid();
         });
         //select
         select.addClickListener(e -> {
@@ -173,17 +186,23 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         });
         //delete
         delete.addClickListener(e -> {
-            grid.getSelectedItems().stream().forEach((t) -> {
-                cuestionarioService.delete(t.getId());
-            });
-            grid.setItems(query -> cuestionarioService.list(
-                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
-                    .stream());
+            Dialog dialog = new Dialog();
+            VerticalLayout dialogLayout = createDialogLayout(dialog, cuestionarioService, grid, delete, select, save);
+            dialog.add(dialogLayout);
+            dialog.open();
+//            grid.getSelectedItems().stream().forEach((t) -> {
+//                cuestionarioService.delete(t.getId());
+//            });
+//            grid.setItems(query -> cuestionarioService.list(
+//                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+//                    .stream());
+//
+//            select.setVisible(true);
+//            delete.setVisible(false);
+//            save.setVisible(true);
+//            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+//            Notification.show("Cuestionario elminado");
             refreshGrid();
-            select.setVisible(true);
-            delete.setVisible(false);
-            save.setVisible(true);
-            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
         });
     }
 
@@ -216,23 +235,24 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         editorLayoutDiv.add(editorDiv);
 
         FormLayout formLayout = new FormLayout();
-        nombCuestionario = new TextField("Cuestionario");
-        juego = new TextField("Juego");
-        descripcion = new TextField("Descripcion");
-        fecha = new DatePicker("Fecha");
-        usuario = new TextField("Usuario");
-        criterio1 = new TextField("Criterio1");
-        promedio1 = new TextField("Promedio1");
-        criterio2 = new TextField("Criterio2");
-        promedio2 = new TextField("Promedio2");
-        criterio3 = new TextField("Criterio3");
-        proedio3 = new TextField("Proedio3");
-        criterio4 = new TextField("Criterio4");
-        promedio4 = new TextField("Promedio4");
-        criterio5 = new TextField("Criterio5");
-        promedio5 = new TextField("Promedio5");
-        Component[] fields = new Component[]{nombCuestionario, juego, descripcion, fecha, usuario, criterio1, promedio1,
-                criterio2, promedio2, criterio3, proedio3, criterio4, promedio4, criterio5, promedio5};
+//        nombCuestionario = new TextField("Cuestionario");
+
+        juego = new TextField("Videojuegouego");
+        descripcion = new TextField("Descripción");
+        fecha = new DatePicker("Fecha de creacrión");
+//        usuario = new TextField("Usuario");
+        criterio1 = new TextField("Criterio A");
+        promedio1 = new TextField("Promedio A");
+        criterio2 = new TextField("Criterio B");
+        promedio2 = new TextField("Promedio B");
+        criterio3 = new TextField("Criterio C");
+        proedio3 = new TextField("Proedio C");
+        criterio4 = new TextField("Criterio D");
+        promedio4 = new TextField("Promedio D");
+        criterio5 = new TextField("Criterio E");
+        promedio5 = new TextField("Promedio E");
+        Component[] fields = new Component[]{/*nombCuestionario, */juego, descripcion, fecha/*, usuario*/, criterio1, promedio1,
+            criterio2, promedio2, criterio3, proedio3, criterio4, promedio4, criterio5, promedio5};
 
         for (Component field : fields) {
             ((HasStyle) field).addClassName("full-width");
@@ -265,8 +285,9 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
     }
 
     private void refreshGrid() {
-        grid.select(null);
         grid.getLazyDataView().refreshAll();
+        grid.select(null);
+        UI.getCurrent().getPage().reload();
     }
 
     private void clearForm() {
@@ -276,6 +297,54 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
     private void populateForm(Cuestionarios value) {
         this.cuestionario = value;
         binder.readBean(this.cuestionario);
-
     }
+
+    private static VerticalLayout createDialogLayout(Dialog dialog, CuestionariosService cuestionarioService, Grid<Cuestionarios> grid, Button delete, Button select, Button save) {
+        H1 headline = new H1("¡Precaución!");
+        headline.getStyle().set("margin", "var(--lumo-space-m) 0 0 0")
+                .set("font-size", "1.5em").set("font-weight", "bold");
+        H4 texto = new H4("¿Está usted seguro que desea eliminar?");
+        VerticalLayout fieldLayout = new VerticalLayout(texto);
+        fieldLayout.setSpacing(false);
+        fieldLayout.setPadding(false);
+        fieldLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+
+        Button aceptar = new Button("Aceptar", e -> {
+            grid.getSelectedItems().stream().forEach((t) -> {
+                cuestionarioService.delete(t.getId());
+            });
+            grid.setItems(query -> cuestionarioService.list(
+                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+                    .stream());
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            Notification.show("Cuestionairo eliminado");
+            dialog.close();
+        });
+        Button cancelar = new Button("Cancelar", e -> {
+            save.setText("Crear nuevo cuestionario");
+            select.setVisible(true);
+            delete.setVisible(false);
+            save.setVisible(true);
+            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            dialog.close();
+        });
+        cancelar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        aceptar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        HorizontalLayout buttonLayout = new HorizontalLayout(aceptar,
+                cancelar);
+        buttonLayout
+                .setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+
+        VerticalLayout dialogLayout = new VerticalLayout(headline, fieldLayout,
+                buttonLayout);
+        dialogLayout.setPadding(false);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "300px").set("max-width", "100%");
+
+        return dialogLayout;
+    }
+
 }
