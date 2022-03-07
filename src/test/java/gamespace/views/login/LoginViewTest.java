@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gamespace.views.administrarcuenta;
+package gamespace.views.login;
 
 import gamespace.data.Role;
 import gamespace.data.entity.User;
@@ -31,42 +31,36 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class AdministrarCuentaViewTest {
+public class LoginViewTest {
 
     Usuario usuario;
-
+    
     @Autowired
     UserService userService;
     private User user;
 
-    public AdministrarCuentaViewTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
+    public LoginViewTest() {
     }
 
     @Before
-    public void setUp() {
+    public void setUpClass() {
         user = new User();
         user.setName("Virulo");
         user.setUsername("asdfdgh");
         user.setHashedPassword("user1111");
         user.setRoles(Collections.singleton(Role.USER));
         userService.update(user);
-
     }
 
+    @AfterClass
+    public static void tearDownClass() {
+    }
     @After
     public void tearDown() {
     }
 
     @Test
-    public void testSomeMethod() {
+    public void Test() {
         boolean expResult = true;
         boolean result = userService.findByUsername(user.getUsername()).equals(user);
         assertEquals(expResult, result);

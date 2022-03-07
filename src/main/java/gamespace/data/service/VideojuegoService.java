@@ -2,6 +2,7 @@ package gamespace.data.service;
 
 import gamespace.data.entity.Noticias;
 import gamespace.data.entity.Videojuego;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,11 +35,27 @@ public class VideojuegoService {
     public Page<Videojuego> list(Pageable pageable) {
         return repository.findAll(pageable);
     }
+
     public List<Videojuego> list() {
         return repository.findAll();
     }
+
     public int count() {
         return (int) repository.count();
+    }
+
+    public List<Videojuego> findAllVideo(String stringFilter) {
+        List<Videojuego> lista = new ArrayList();
+        if (stringFilter == null || stringFilter.isEmpty()) {
+            return repository.findAll();
+        } else {
+            for (Videojuego videoju : repository.findAll()) {
+                if (videoju.getArchDescarga().equals(stringFilter) || videoju.getCover().equals(stringFilter) || videoju.getFechaLanzamiento().toString().equals(stringFilter) || videoju.getCuestionario().equals(stringFilter) || videoju.getDescrpcion().equals(stringFilter)|| videoju.getTitulo().equals(stringFilter)) {
+                    lista.add(videoju);
+                }
+            }
+            return lista;
+        }
     }
 
 }

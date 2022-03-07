@@ -20,14 +20,21 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.login.LoginI18n.ErrorMessage;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import gamespace.data.entity.User;
 import gamespace.data.service.UserRepository;
 import static java.awt.SystemColor.window;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import org.springframework.context.annotation.Scope;
+
+@Scope("prototype")
+@org.springframework.stereotype.Component
+
 @PageTitle("Login")
 @Route(value = "login")
-public class LoginView extends LoginOverlay {
+public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
     UserRepository userRepository;
     TextField username;
@@ -69,18 +76,29 @@ public class LoginView extends LoginOverlay {
 //        if (i18n.getForm().getUsername().equals(userRepository.findByUsername(i18n.getForm().getUsername()))) {
         ErrorMessage errorMessage = new ErrorMessage();
         errorMessage.setTitle("Error");
-        errorMessage.setMessage("Usuario no existente o  contraseña incorrecta");
+        errorMessage.setMessage("Usuario o  contraseña incorrecta");
         i18n.setErrorMessage(errorMessage);
 //        Notification.show("Usuario no existente");
         //Notification.show(System.getProperties().getProperty("user.dir"));
         //Notification.show(this.getClass().getResource("/").getPath());
 //        Notification.show(window.getClass().getResource(" ")/*.getPath()*/+"");
-        
+
 //        } 
         setI18n(i18n);
 
         setOpened(true);
 
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        // inform the user about an authentication error
+        if (beforeEnterEvent.getLocation()
+                .getQueryParameters()
+                .getParameters()
+                .containsKey("error")) {
+            setError(true);
+        }
     }
 
     private VerticalLayout createDialogLayout(Dialog dialog) {

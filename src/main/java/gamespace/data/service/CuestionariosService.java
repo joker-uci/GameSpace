@@ -1,5 +1,6 @@
 package gamespace.data.service;
 
+import com.vaadin.flow.component.notification.Notification;
 import gamespace.data.entity.Cuestionarios;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,24 +40,26 @@ public class CuestionariosService {
         return (int) repository.count();
     }
 
-    public List <Cuestionarios> todosCuest() {
-        List Cuestionarios = new ArrayList();
-        for(Cuestionarios cuestionario:repository.findAll()){
-        Cuestionarios.add(cuestionario);
-        };
-        return Cuestionarios;
+    public List<Cuestionarios> todosCuest() {
+        return repository.findAll();
     }
+
     public Cuestionarios findByVideoj(String titulo) {
-        List cuest = new ArrayList();
-        cuest.addAll(todosCuest());
-        Cuestionarios cuestionario = new Cuestionarios();
-        
-        for (int i = 0; i < cuest.size(); i++) {
-            cuestionario = (Cuestionarios) cuest.get(i);
-            if (titulo == cuestionario.getJuego()) {
-                return cuestionario;
-            }
+        List<Cuestionarios> cuestio = todosCuest();
+//        for (Cuestionarios cuestionario : cuestio) {
+//            if (cuestionario.getJuego().equals(titulo)) {
+//                return cuestionario;
+//            }
+//        };
+        for (int i = 0; i < cuestio.size(); i++) {
+            Notification.show(cuestio.get(i).getJuego() + "");
         }
+//        for (int i = 0; i < cuest.size(); i++) {
+//            cuestionario = (Cuestionarios) cuest.get(i);
+//            if (titulo == cuestionario.getJuego()) {
+//                return cuestionario;
+//            }
+//        }
         return null;
     }
 }

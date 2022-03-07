@@ -186,7 +186,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
 //            save.setVisible(true);
 //            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 //            Notification.show("Videojuego eliminado");
-            refreshGrid();
+            
         });
     }
 
@@ -311,7 +311,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
 
     }
 
-    private static VerticalLayout createDialogLayout(Dialog dialog, VideojuegoService videojuegoService, Grid<Videojuego> grid, Button delete, Button select, Button save) {
+    private VerticalLayout createDialogLayout(Dialog dialog, VideojuegoService videojuegoService, Grid<Videojuego> grid, Button delete, Button select, Button save) {
         H1 headline = new H1("¡Precaución!");
         headline.getStyle().set("margin", "var(--lumo-space-m) 0 0 0")
                 .set("font-size", "1.5em").set("font-weight", "bold");
@@ -334,6 +334,7 @@ public class GVideojuegosView extends Div implements BeforeEnterObserver {
             grid.setSelectionMode(Grid.SelectionMode.SINGLE);
             Notification.show("Videojuego eliminado");
             dialog.close();
+            refreshGrid();
         });
         Button cancelar = new Button("Cancelar", e -> {
             save.setText("Crear nuevo videojuego");

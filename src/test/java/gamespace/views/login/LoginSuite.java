@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gamespace.views.gnoticias;
+package gamespace.views.login;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -17,8 +17,8 @@ import org.junit.runners.Suite;
  * @author JoKeR
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({gamespace.views.gnoticias.GNoticiasViewTest.class})
-public class GnoticiasSuite {
+@Suite.SuiteClasses({gamespace.views.login.LoginViewTest.class})
+public class LoginSuite {
 
     @BeforeClass
     public static void setUpClass() throws Exception {

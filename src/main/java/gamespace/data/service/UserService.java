@@ -37,4 +37,10 @@ public class UserService {
         return (int) repository.count();
     }
 
+    public Object findByUsername(String username) {
+        return  repository.findByUsername(username);
+    }
+
+   
+
 }

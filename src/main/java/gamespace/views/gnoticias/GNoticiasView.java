@@ -138,7 +138,6 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
                     select.setVisible(true);///--------------------------corregir en los otros
                     delete.setVisible(false);///--------------------------corregir en los otros
                     save.setVisible(true);///--------------------------corregir en los otros
-                    refreshGrid();
                     UI.getCurrent().navigate(GNoticiasView.class);
                     refreshGrid();
                 }
@@ -167,7 +166,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
 //                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
 //                    .stream());
 //            Notification.show("Noticia eliminada");/////--------------------------corregir en los otros
-            refreshGrid();
+
 //            select.setVisible(true);
 //            delete.setVisible(false);
 //            save.setVisible(true);
@@ -255,7 +254,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
         binder.readBean(this.noticias);
     }
 
-    private static VerticalLayout createDialogLayout(Dialog dialog, NoticiasService noticiasService, Grid<Noticias> grid, Button delete, Button select, Button save) {
+    private VerticalLayout createDialogLayout(Dialog dialog, NoticiasService noticiasService, Grid<Noticias> grid, Button delete, Button select, Button save) {
         H1 headline = new H1("¡Precaución!");
         headline.getStyle().set("margin", "var(--lumo-space-m) 0 0 0")
                 .set("font-size", "1.5em").set("font-weight", "bold");
@@ -277,6 +276,7 @@ public class GNoticiasView extends Div implements BeforeEnterObserver {
             save.setVisible(true);
             grid.setSelectionMode(Grid.SelectionMode.SINGLE);
             Notification.show("Noticia eliminada");
+            refreshGrid();
             dialog.close();
         });
         Button cancelar = new Button("Cancelar", e -> {

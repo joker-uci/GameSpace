@@ -92,7 +92,7 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         grid.addColumn("juego").setAutoWidth(true);
         grid.addColumn("descripcion").setAutoWidth(true);
         grid.addColumn("fecha").setAutoWidth(true);
-        grid.addColumn("usuario").setAutoWidth(true);
+//        grid.addColumn("usuario").setAutoWidth(true);
         grid.addColumn("criterio1").setAutoWidth(true);
         grid.addColumn("promedio1").setAutoWidth(true);
         grid.addColumn("criterio2").setAutoWidth(true);
@@ -167,14 +167,12 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
                     delete.setVisible(false);///--------------------------corregir en los otros
                     save.setVisible(true);
                     Notification.show("Cuestionario guardado");
-                    refreshGrid();
                     UI.getCurrent().navigate(GCuestionariosView.class);
                     refreshGrid();
                 }
             } catch (ValidationException validationException) {
                 Notification.show("Un error ha ocurrido mientras se guardaba el cuestionario");
             }
-            refreshGrid();
         });
         //select
         select.addClickListener(e -> {
@@ -202,7 +200,6 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
 //            save.setVisible(true);
 //            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 //            Notification.show("Cuestionario elminado");
-            refreshGrid();
         });
     }
 
@@ -299,7 +296,7 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
         binder.readBean(this.cuestionario);
     }
 
-    private static VerticalLayout createDialogLayout(Dialog dialog, CuestionariosService cuestionarioService, Grid<Cuestionarios> grid, Button delete, Button select, Button save) {
+    private VerticalLayout createDialogLayout(Dialog dialog, CuestionariosService cuestionarioService, Grid<Cuestionarios> grid, Button delete, Button select, Button save) {
         H1 headline = new H1("¡Precaución!");
         headline.getStyle().set("margin", "var(--lumo-space-m) 0 0 0")
                 .set("font-size", "1.5em").set("font-weight", "bold");
@@ -321,7 +318,9 @@ public class GCuestionariosView extends Div implements BeforeEnterObserver {
             save.setVisible(true);
             grid.setSelectionMode(Grid.SelectionMode.SINGLE);
             Notification.show("Cuestionairo eliminado");
+            refreshGrid();
             dialog.close();
+            
         });
         Button cancelar = new Button("Cancelar", e -> {
             save.setText("Crear nuevo cuestionario");
